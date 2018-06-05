@@ -1,0 +1,45 @@
+{
+  "name": "lepto",
+  "version": "1.0.0",
+  "description": "Advanced images minification CLI tool",
+  "main": "index.js",
+  "bin": {
+    "lepto": "./bin/lepto"
+  },
+  "scripts": {
+    "demo": "lepto"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dimitrinicolas/lepto.git"
+  },
+  "keywords": [
+    "front-end",
+    "optimization",
+    "images",
+    "minification",
+    "javascript",
+    "CLI",
+    "jpg"
+  ],
+  "author": "Dimitri NICOLAS <dimitri@fivecorp.fr>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dimitrinicolas/lepto/issues"
+  },
+  "homepage": "https://github.com/dimitrinicolas/lepto",
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "chokidar": "^2.0.3",
+    "cosmiconfig": "^5.0.5",
+    "fast-glob": "^2.2.2",
+    "fs-extra": "^6.0.1",
+    "minimatch": "^3.0.4",
+    "minimist": "^1.2.0",
+    "p-pipe": "^1.2.0",
+    "pumpify": "^1.5.1",
+    "readable-stream": "^2.3.6",
+    "sharp": "^0.20.3",
+    "through2": "^2.0.3"
+  }
+}

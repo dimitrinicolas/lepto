@@ -1,0 +1,46 @@
+#!/usr/bin/env node
+
+const lepto = require('../');
+
+const path = require('path');
+const cosmiconfig = require('cosmiconfig');
+const chalk = require('chalk');
+
+const argv = require('minimist')(process.argv.slice(2), {
+  alias: {
+    w: 'watch',
+    c: 'config'
+  }
+});
+
+const defaultConfig = require('./default-cli-config.js');
+
+
+const configExplorer = cosmiconfig('lepto');
+
+let loadedConfig = null;
+
+const searchedFor = configExplorer.searchSync();
+if (searchedFor && !searchedFor.isEmpty) {
+  loadedConfig = searchedFor.config;
+}
+
+if (argv.config) {
+  const configPath = path.resolve(argv.config);
+  const loaded = configExplorer.loadSync(configPath);
+  if (!loaded.isEmpty) {
+    loadedConfig = loaded.config;
+  }
+  else {
+    console.log(chalk.red.bold('Lepto - Empty config file: ', configPath));
+  }
+}
+
+if (!loadedConfig) {
+  console.log(chalk.red.bold('Lepto - No config file found'));
+  return;
+}
+
+const config = Object.assign(defaultConfig, loadedConfig || {});
+
+lepto(config);
