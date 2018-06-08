@@ -1,6 +1,21 @@
-const defaultConfig = {
-  watch: false,
-  input: null
+const cli = {
+  input: null,
+  output: null,
+  watch: true,
+  watchConfig: false,
+  quiet: false,
+  dataOutput: null,
+  filters: []
 };
 
-module.exports = defaultConfig;
+const main = {
+  input: null,
+  output: null,
+  watch: false,
+  watchConfig: false,
+  quiet: false,
+  dataOutput: null,
+  filters: []
+};
+
+module.exports = { main, cli };

@@ -1,4 +1,4 @@
 module.exports = {
-  resize: require('./resize'),
-  webp: require('./webp')
+  resize: require('./resize.js'),
+  webp: require('./webp.js')
 }

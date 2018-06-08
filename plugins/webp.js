@@ -7,13 +7,9 @@ const ext = (filename) => {
   return filename.substr(filename.lastIndexOf('.') + 1, filename.length);
 };
 
-const webp = (options) => {
-  let kernelOption = {};
-  if (options.kernel) {
-    kernelOption.kernel = sharp.kernel[options.kernel];
-  }
+const webp = (options={}) => {
   return function(input, fulfill) {
-    const test = () => {
+    const next = () => {
       finish++;
       if (finish) {
         fulfill(input);
@@ -22,10 +18,16 @@ const webp = (options) => {
     let finish = -input.outputs.length + 1;
     for (let i = 0, l = input.outputs.length; i < l; i++) {
       if (ext(input.outputs[i].filename) !== 'webp') {
-        input.outputs.push(Object.assign({}, input.outputs[i], {
+        let webpOutput = Object.assign({}, input.outputs[i], {
           filename: noExt(input.outputs[i].filename) + '.webp',
           toConvert: true
-        }))
+        });
+        if (options.replaceFile) {
+          input.outputs[i] = webpOutput
+        }
+        else {
+          input.outputs.push(webpOutput);
+        }
       }
     }
     for (let i in input.outputs) {
@@ -36,10 +38,10 @@ const webp = (options) => {
           .then(function(i) {
             return function(buffer) {
               input.outputs[i].buffer = buffer;
-              test();
+              next();
             };
           }(i))
-          .catch(test);
+          .catch(next);
       }
     }
   };

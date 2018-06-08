@@ -1,46 +1,49 @@
 #!/usr/bin/env node
 
-const lepto = require('../');
-
 const path = require('path');
-const cosmiconfig = require('cosmiconfig');
 const chalk = require('chalk');
+const fs = require('fs')
+
+const lepto = require('../src/lepto.js');
+const log = require('../src/log.js');
+const loadConfig = require('../src/load-config.js');
 
 const argv = require('minimist')(process.argv.slice(2), {
   alias: {
     w: 'watch',
-    c: 'config'
+    c: 'config',
+    q: 'quiet'
   }
 });
 
-const defaultConfig = require('./default-cli-config.js');
-
-
-const configExplorer = cosmiconfig('lepto');
-
 let loadedConfig = null;
 
-const searchedFor = configExplorer.searchSync();
-if (searchedFor && !searchedFor.isEmpty) {
-  loadedConfig = searchedFor.config;
-}
-
 if (argv.config) {
-  const configPath = path.resolve(argv.config);
-  const loaded = configExplorer.loadSync(configPath);
-  if (!loaded.isEmpty) {
-    loadedConfig = loaded.config;
+  const loaded = loadConfig(path.resolve(argv.config), { cli: true });
+  if (loaded.success) {
+    loadedConfig = loaded;
   }
   else {
-    console.log(chalk.red.bold('Lepto - Empty config file: ', configPath));
+    log(['Lepto -', loaded.msg], 'red');
+    return;
+  }
+}
+else {
+  const jsonConfigResult = loadConfig(path.resolve(process.cwd(), './lepto.config.json'), { cli: true });
+  if (jsonConfigResult.success) {
+    loadedConfig = newConfigResult;
+  }
+  else {
+    const jsConfigResult = loadConfig(path.resolve(process.cwd(), './lepto.config.js'), { cli: true });
+    if (jsConfigResult.success) {
+      loadedConfig = jsConfigResult;
+    }
   }
 }
 
 if (!loadedConfig) {
-  console.log(chalk.red.bold('Lepto - No config file found'));
+  log('Lepto - No config file found', 'red');
   return;
 }
 
-const config = Object.assign(defaultConfig, loadedConfig || {});
-
-lepto(config);
+lepto(loadedConfig);

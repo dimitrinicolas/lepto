@@ -2,7 +2,7 @@
   "name": "lepto",
   "version": "1.0.0",
   "description": "Advanced images minification CLI tool",
-  "main": "index.js",
+  "main": "src/lepto.js",
   "bin": {
     "lepto": "./bin/lepto"
   },
@@ -19,7 +19,7 @@
     "images",
     "minification",
     "javascript",
-    "CLI",
+    "cli",
     "jpg"
   ],
   "author": "Dimitri NICOLAS <dimitri@fivecorp.fr>",
@@ -31,15 +31,11 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "chokidar": "^2.0.3",
-    "cosmiconfig": "^5.0.5",
+    "deep-object-diff": "^1.1.0",
     "fast-glob": "^2.2.2",
     "fs-extra": "^6.0.1",
     "minimatch": "^3.0.4",
     "minimist": "^1.2.0",
-    "p-pipe": "^1.2.0",
-    "pumpify": "^1.5.1",
-    "readable-stream": "^2.3.6",
-    "sharp": "^0.20.3",
-    "through2": "^2.0.3"
+    "sharp": "^0.20.3"
   }
 }

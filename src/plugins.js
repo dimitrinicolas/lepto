@@ -1,15 +1,15 @@
-const requirePath = require('./require-path.js');
+const path = require('path');
 
 const nativePlugins = require('../plugins');
-// TODO REPLACE WITH require
 
 const __defaultConfigProps = {
   name: '',
-  disabled: false
+  disabled: false,
+  __func: null
 };
 
 const resolverPlugin = (name) => {
-  let pluginName = name;
+  const pluginName = name;
   if (name.lastIndexOf('#') !== -1) {
     name = name.substr(0, name.lastIndexOf('#'));
   }
@@ -18,12 +18,12 @@ const resolverPlugin = (name) => {
     return nativePlugins[name];
   }
   else {
-    return requirePath(name);
+    return require(path.resolve(process.cwd(), name));
   }
 }
 
 const satinize = (list) => {
-  let res = [];
+  const res = [];
 
   if (!Array.isArray(list)) {
     return res;
@@ -65,7 +65,7 @@ const merge = (mainPlugins, newPlugins) => {
     newPlugins = [];
   }
 
-  let res = [];
+  const res = [];
   for (let el of mainPlugins) {
     res.push(el);
   }

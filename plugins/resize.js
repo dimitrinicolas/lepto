@@ -1,6 +1,6 @@
 const sharp = require('../node_modules/sharp');
 
-const resize = (options) => {
+const resize = (options={}) => {
   let kernelOption = {};
   if (options.kernel) {
     kernelOption.kernel = sharp.kernel[options.kernel];
@@ -14,6 +14,7 @@ const resize = (options) => {
         .then(function(i) {
           return function(buffer) {
             input.outputs[i].buffer = buffer;
+            input.outputs[i].data = { zeb: 'zeb' };
             finish++;
             if (finish) {
               fulfill(input);
