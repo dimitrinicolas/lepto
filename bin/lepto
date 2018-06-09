@@ -10,9 +10,11 @@ const loadConfig = require('../src/load-config.js');
 
 const argv = require('minimist')(process.argv.slice(2), {
   alias: {
+    i: 'input',
+    o: 'output',
     w: 'watch',
     c: 'config',
-    q: 'quiet'
+    l: 'logLevel'
   }
 });
 
@@ -46,4 +48,12 @@ if (!loadedConfig) {
   return;
 }
 
-lepto(loadedConfig);
+const cliConfig = {};
+const argvOpts = ['input', 'output', 'watch', 'logLevel'];
+for (let item of argvOpts) {
+  if (typeof argv[item] !== 'undefined') {
+    cliConfig[item] = argv[item];
+  }
+}
+
+lepto(loadedConfig, cliConfig);

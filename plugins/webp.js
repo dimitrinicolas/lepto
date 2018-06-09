@@ -9,13 +9,14 @@ const ext = (filename) => {
 
 const webp = (options={}) => {
   return function(input, fulfill) {
+    let finish = -input.outputs.length + 1;
     const next = () => {
       finish++;
-      if (finish) {
+      if (finish > 0) {
         fulfill(input);
       }
     };
-    let finish = -input.outputs.length + 1;
+
     for (let i = 0, l = input.outputs.length; i < l; i++) {
       if (ext(input.outputs[i].filename) !== 'webp') {
         let webpOutput = Object.assign({}, input.outputs[i], {
@@ -30,6 +31,8 @@ const webp = (options={}) => {
         }
       }
     }
+
+    finish = -input.outputs.length + 1;
     for (let i in input.outputs) {
       if (input.outputs[i].toConvert) {
         sharp(input.outputs[i].buffer)
@@ -42,6 +45,9 @@ const webp = (options={}) => {
             };
           }(i))
           .catch(next);
+      }
+      else {
+        next();
       }
     }
   };

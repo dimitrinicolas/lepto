@@ -19,12 +19,16 @@ let logLevel = 2;
 
 let onces = {};
 
+const getLevel = () => {
+  return logLevel;
+}
+
 const getLevelCode = (level) => {
   if (typeof level === 'string' && typeof levels[level] !== 'undefined') {
     return levels[level];
   }
-  else if (typeof level === 'number' && level >= levels.min && level <= levels.max) {
-    return level;
+  else if (typeof level === 'number') {
+    return Math.min(Math.max(level, levels.min), levels.max);
   }
   return levels.max;
 }
@@ -51,4 +55,4 @@ const log = (txt='', color='green', level=levels.max, callOnce=null) => {
   }
 };
 
-module.exports = Object.assign(log, { setLevel });
+module.exports = Object.assign(log, { getLevel, getLevelCode, setLevel });

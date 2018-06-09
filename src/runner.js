@@ -11,10 +11,12 @@ const pipe = require('./pipe.js');
 const globbers = require('./globbers.js');
 const saveData = require('./save-data.js');
 const loadConfig = require('./load-config.js');
+const beautifier = require('./beautifier.js');
 
 class Runner {
-  constructor(config) {
+  constructor(config, cliConfig) {
     this.cli = config.___cli ? true : false;
+    this.cliConfig = cliConfig;
     const configSet = this.setConfig(config);
     if (configSet.success) {
       this.processAll();
@@ -25,7 +27,10 @@ class Runner {
   }
 
   setConfig(config) {
-    const options = Object.assign({}, defaultConfig.main, config.config);
+    let options = Object.assign({}, defaultConfig.main, config.config);
+    if (this.cliConfig) {
+      Object.assign(options, this.cliConfig);
+    }
 
     this.globbersList = globbers.generate({
       dir: options.input,
@@ -49,7 +54,7 @@ class Runner {
     this.configPath = config.filepath;
     this.options = options;
 
-    if (this.options.logLevel) {
+    if (typeof this.options.logLevel !== 'undefined') {
        log.setLevel(this.options.logLevel);
     }
     else {
@@ -116,6 +121,7 @@ class Runner {
 
   processList(list, event) {
     for (let item of list) {
+      const processStart = Date.now();
       const pluginsList = globbers.getPluginsList(this.globbersList, item);
       const relativePath = path.relative(path.resolve(process.cwd(), this.options.input), item);
       const adjs = {
@@ -125,6 +131,7 @@ class Runner {
       let adj = typeof adjs[event] !== 'undefined' ? adjs[event] + ' ' : '';
       if (pluginsList.length) {
         const buffer = fs.readFileSync(item);
+        const inputSize = buffer.length;
         const pipedData = {
           input: relativePath,
           outputs: [
@@ -142,13 +149,28 @@ class Runner {
           pluginsFuncs.push(item.__func);
         }
         pipe(pipedData, pluginsFuncs).then(function(res) {
-          if (this.options.dataOutput && res.data) {
+          const timeSpent = Date.now() - processStart;
+          if (this.options.dataOutput && Object.keys(res.data).length) {
             saveData(path.resolve(process.cwd(), this.options.dataOutput), res.input, res.data);
           }
-          else if (!this.options.dataOutput && res.data) {
+          else if (!this.options.dataOutput && Object.keys(res.data).length) {
             log(`Lepto - Some plugins are outputing data but you didn't set up a dataOutput path`, 'white', 'info', 'data-output-disabled');
           }
-          log(`Lepto - Processed ${adj}file ${relativePath} with ${pluginsList.length} plugin${pluginsList.length > 1 ? 's' : ''} -> ${res.outputs.length} output file${res.outputs.length > 1 ? 's' : ''}`);
+          let maxSave = 0;
+          let saveTxt = '';
+          let outputsText = [];
+          for (let output of res.outputs) {
+            maxSave = Math.min(Math.max(0, maxSave, 1 - output.buffer.length / inputSize), 1);
+            outputsText.push(`${output.dir === '.' ? '' : output.dir + '/'}${output.filename} (${beautifier.bytes(output.buffer.length)})`);
+          }
+          if (res.outputs.length > 1) {
+            outputsText = '[ ' + outputsText.join(', ') + ' ]';
+            saveTxt = `max save: ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
+          }
+          else {
+            saveTxt = `saved: ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
+          }
+          log(`\nLepto - Processed ${adj}file ${relativePath} (${beautifier.bytes(inputSize)}) with ${pluginsList.length} plugin${pluginsList.length > 1 ? 's' : ''} in ${beautifier.time(timeSpent)} -> ${outputsText}, ${saveTxt}`);
           for (let output of res.outputs) {
             const outputPath = path.resolve(this.options.output + '/' + output.dir + '/' + output.filename);
             fse.outputFile(outputPath, output.buffer, err => {

@@ -36,6 +36,7 @@
     "fs-extra": "^6.0.1",
     "minimatch": "^3.0.4",
     "minimist": "^1.2.0",
+    "node-vibrant": "^3.0.0",
     "sharp": "^0.20.3"
   }
 }

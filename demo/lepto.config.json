@@ -1,7 +1,6 @@
 {
   "input": "./demo/input",
   "output": "./demo/output",
-  "watch": true,
   "watchConfig": true,
   "dataOutput": "./demo/output/data.json",
   "filters": [
@@ -9,15 +8,12 @@
       "glob": ["**/*.{jpg,jpeg}"],
       "use": [
         {
-          "name": "lepto.webp"
-        },
-        {
           "name": "lepto.resize",
           "width": 800
         },
+        "lepto.vibrantColor",
         {
-          "name": "./demo/plugin.js",
-          "width": 800
+          "name": "lepto.webp"
         }
       ]
     },

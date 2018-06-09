@@ -3,7 +3,7 @@ const cli = {
   output: null,
   watch: true,
   watchConfig: false,
-  quiet: false,
+  logLevel: 'all',
   dataOutput: null,
   filters: []
 };
@@ -13,7 +13,7 @@ const main = {
   output: null,
   watch: false,
   watchConfig: false,
-  quiet: false,
+  logLevel: 'all',
   dataOutput: null,
   filters: []
 };
