@@ -1,0 +1,40 @@
+{
+  "input": "./demo/input",
+  "output": "./demo/output",
+  "watchConfig": true,
+  "followUnlink": true,
+  "dataOutput": "./demo/output/data.json",
+  "filters": [
+    {
+      "glob": ["**/*.{jpg,jpeg}"],
+      "use": [
+        {
+          "name": "lepto.resize",
+          "width": 800
+        },
+        "lepto.vibrantColor",
+        {
+          "name": "lepto.webp"
+        }
+      ]
+    },
+    {
+      "glob": "**/*.png",
+      "use": [
+        {
+          "name": "lepto.resize",
+          "width": 32
+        }
+      ]
+    },
+    {
+      "dir": "incr",
+      "use": [
+        {
+          "name": "lepto.resize",
+          "width": 32
+        }
+      ]
+    }
+  ]
+}

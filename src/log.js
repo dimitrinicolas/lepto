@@ -1,8 +1,21 @@
 let logger;
 
-const log = (text='', opts) => {
+let waitingList = [];
+
+const log = (text='', opts={}) => {
   if (typeof logger === 'function') {
+    if (waitingList.length) {
+      let data = {
+        text: waitingList[waitingList.length - 1][0],
+        opts: waitingList[waitingList.length - 1][1]
+      };
+      waitingList.pop();
+      log(data.text, data.opts);
+    }
     logger(text, opts);
+  }
+  else {
+    waitingList.push([text, opts]);
   }
 };
 

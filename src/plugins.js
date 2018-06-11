@@ -1,5 +1,7 @@
 const path = require('path');
 
+const log = require('./log.js');
+
 const nativePlugins = require('../plugins');
 
 const __defaultConfigProps = {
@@ -32,6 +34,7 @@ const satinize = (list) => {
   for (let plugin of list) {
     let pluginRes = null;
     if (typeof plugin === 'function') {
+      log.warn('It is not recommended to use a function as a lepto plugins, functions cannot be overriden by another filter', 'plugin-as-a-function');
       pluginRes = Object.assign({}, __defaultConfigProps, {
         name: null,
         __invoked: true,
@@ -51,7 +54,7 @@ const satinize = (list) => {
         });
       }
       else {
-        console.log(chalk.red.bold('Invalid plugin format:'), plugin)
+        log.error(['Invalid plugin format:', plugin]);
       }
     }
     if (pluginRes && !pluginRes.disabled) {
@@ -82,7 +85,7 @@ const merge = (mainPlugins, newPlugins) => {
   for (let el of newPlugins) {
     let index = -1;
     for (let i in res) {
-      if (res[i].name === el.name) {
+      if (el.name !== null && res[i].name === el.name) {
         index = i;
         break;
       }

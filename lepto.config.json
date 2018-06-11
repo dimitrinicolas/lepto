@@ -2,13 +2,11 @@
   "input": "demo/input",
   "output": "demo/output",
   "watch": true,
-  "watchConfig": true,
-  "followUnlink": true,
   "dataOutput": "demo/output/data.json",
   "use": [
     {
       "name": "lepto.jpeg",
-      "quality": 75
+      "quality": 30
     },
     {
       "name": "lepto.png",
@@ -17,7 +15,7 @@
   ],
   "filters": [
     {
-      "glob": ["**/*.{jpg,jpeg}"],
+      "glob": "**/*.{jpg,jpeg}",
       "use": [
         {
           "name": "lepto.resize",

@@ -1,7 +1,8 @@
 const log = require('./log.js');
 
 process.on('unhandledRejection', (reason, p) => {
-  log.error(['Unhandled error in a promise', p, 'reason:', reason]);
+  log.error(['Unhandled error in a promise, reason:']);
+  console.log(reason, p);
 });
 
 

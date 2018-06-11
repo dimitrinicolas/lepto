@@ -1,13 +1,15 @@
+const fileType = require('file-type');
 const path = require('path');
-const sharp = require('../node_modules/sharp');
+const sizeOf = require('image-size');
+const sharp = require('sharp');
 
-const resize = (options={}) => {
+const resize = (opts={}) => {
   const kernelOption = {};
-  if (options.kernel) {
-    kernelOption.kernel = sharp.kernel[options.kernel];
+  if (opts.kernel) {
+    kernelOption.kernel = sharp.kernel[opts.kernel];
   }
-  const retinaPrefix = typeof options.prefix !== 'undefined' ? options.prefix : '@';
-  const retinaSuffix = typeof options.suffix !== 'undefined' ? options.suffix : 'x';
+  const retinaPrefix = typeof opts.prefix !== 'undefined' ? opts.prefix : '@';
+  const retinaSuffix = typeof opts.suffix !== 'undefined' ? opts.suffix : 'x';
 
   return function resize(input, fulfill) {
     let finish = -input.outputs.length + 1;
@@ -18,9 +20,9 @@ const resize = (options={}) => {
       }
     };
 
-    if (Array.isArray(options.retina)) {
+    if (Array.isArray(opts.retina)) {
       for (let i = 0, l = input.outputs.length; i < l; i++) {
-        for (let multiple of options.retina) {
+        for (let multiple of opts.retina) {
           if (typeof multiple == 'number') {
             input.outputs.push(Object.assign({}, input.outputs[i], {
               filename: path.basename(input.outputs[i].filename, path.extname(input.outputs[i].filename)) + retinaPrefix + multiple + retinaSuffix + path.extname(input.outputs[i].filename),
@@ -33,11 +35,32 @@ const resize = (options={}) => {
 
     finish = -input.outputs.length + 1;
     for (let i in input.outputs) {
-      let width = typeof options.width === 'number' ? options.width : null;
-      let height = typeof options.height === 'number' ? options.height : null;
+      const size = sizeOf(input.outputs[i].buffer);
+      let width = typeof opts.width === 'number' ? opts.width : null;
+      let height = typeof opts.height === 'number' ? opts.height : null;
+      if (width === null && height === null) {
+        width = size.width;
+        height = size.height;
+      }
       if (typeof input.outputs[i].retina === 'number') {
         width = typeof width === 'number' ? width * input.outputs[i].retina : width;
         height = typeof height === 'number' ? height * input.outputs[i].retina : height;
+      }
+      if (opts.maxWidth || opts.maxHeight || opts.maxSize) {
+        let maxWidth = typeof opts.maxWidth !== 'undefined' ? Math.max(0, parseInt(opts.maxWidth)) : null;
+        let maxHeight = typeof opts.maxHeight !== 'undefined' ? Math.max(0, parseInt(opts.maxHeight)) : null;
+        let maxSize = typeof opts.maxSize !== 'undefined' ? Math.max(0, parseInt(opts.maxSize)) : null;
+        if (maxSize !== null) {
+          maxWidth = maxHeight = maxSize;
+        }
+        if (maxWidth !== null && size.width > maxWidth) {
+          height = Math.round(height / width * maxWidth);
+          width = maxWidth;
+        }
+        if (maxHeight !== null && height > maxHeight) {
+          width = Math.round(width / height * maxHeight);
+          height = maxHeight;
+        }
       }
       sharp(input.outputs[i].buffer)
         .resize(width, height, kernelOption)

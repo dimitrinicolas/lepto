@@ -1,4 +1,5 @@
-const Vibrant = require('../node_modules/node-vibrant');
+const fileType = require('file-type');
+const Vibrant = require('node-vibrant');
 
 const vibrantColor = () => {
   return function vibrantColor(input, fulfill) {
@@ -20,21 +21,26 @@ const vibrantColor = () => {
     };
 
     for (let i in input.outputs) {
-      Vibrant.from(input.outputs[i].buffer)
-        .quality(1)
-        .clearFilters()
-        .getPalette()
-        .then((palette) => {
-          input.data.vibrantColor = {
-            vibrant: palette.Vibrant ? palette.Vibrant.getHex() : null,
-            lightVibrant: palette.LightVibrant ? palette.LightVibrant.getHex() : null,
-            darkVibrant: palette.DarkVibrant ? palette.DarkVibrant.getHex() : null,
-            muted: palette.Muted ? palette.Muted.getHex() : null,
-            lightMuted: palette.LightMuted ? palette.LightMuted.getHex() : null,
-            darkMuted: palette.DarkMuted ? palette.DarkMuted.getHex() : null
-          };
-          next();
-        });
+      if (['image/png', 'image/jpeg'].indexOf(fileType(input.outputs[i].buffer)) !== -1) {
+        Vibrant.from(input.outputs[i].buffer)
+          .quality(1)
+          .clearFilters()
+          .getPalette()
+          .then((palette) => {
+            input.data.vibrantColor = {
+              vibrant: palette.Vibrant ? palette.Vibrant.getHex() : null,
+              lightVibrant: palette.LightVibrant ? palette.LightVibrant.getHex() : null,
+              darkVibrant: palette.DarkVibrant ? palette.DarkVibrant.getHex() : null,
+              muted: palette.Muted ? palette.Muted.getHex() : null,
+              lightMuted: palette.LightMuted ? palette.LightMuted.getHex() : null,
+              darkMuted: palette.DarkMuted ? palette.DarkMuted.getHex() : null
+            };
+            next();
+          });
+      }
+      else {
+        next();
+      }
     }
   };
 };
