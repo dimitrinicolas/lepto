@@ -1,11 +1,5 @@
+const path = require('path');
 const sharp = require('../node_modules/sharp');
-
-const noExt = (filename) => {
-  return filename.substr(0, filename.lastIndexOf('.'))
-};
-const ext = (filename) => {
-  return filename.substr(filename.lastIndexOf('.') + 1, filename.length);
-};
 
 const resize = (options={}) => {
   const kernelOption = {};
@@ -29,7 +23,7 @@ const resize = (options={}) => {
         for (let multiple of options.retina) {
           if (typeof multiple == 'number') {
             input.outputs.push(Object.assign({}, input.outputs[i], {
-              filename: noExt(input.outputs[i].filename) + retinaPrefix + multiple + retinaSuffix + '.' + ext(input.outputs[i].filename),
+              filename: path.basename(input.outputs[i].filename, path.extname(input.outputs[i].filename)) + retinaPrefix + multiple + retinaSuffix + path.extname(input.outputs[i].filename),
               retina: multiple
             }));
           }

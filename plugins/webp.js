@@ -1,11 +1,5 @@
+const path = require('path');
 const sharp = require('../node_modules/sharp');
-
-const noExt = (filename) => {
-  return filename.substr(0, filename.lastIndexOf('.'))
-};
-const ext = (filename) => {
-  return filename.substr(filename.lastIndexOf('.') + 1, filename.length);
-};
 
 const webp = (options={}) => {
   return function(input, fulfill) {
@@ -18,9 +12,9 @@ const webp = (options={}) => {
     };
 
     for (let i = 0, l = input.outputs.length; i < l; i++) {
-      if (ext(input.outputs[i].filename) !== 'webp') {
+      if (path.extname(input.outputs[i].filename) !== '.webp') {
         let webpOutput = Object.assign({}, input.outputs[i], {
-          filename: noExt(input.outputs[i].filename) + '.webp',
+          filename: path.basename(input.outputs[i].filename, path.extname(input.outputs[i].filename)) + '.webp',
           toConvert: true
         });
         if (options.replaceFile) {

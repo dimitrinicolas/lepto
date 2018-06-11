@@ -1,4 +1,4 @@
-# Lepto
+# lepto
 
 ## License
 
