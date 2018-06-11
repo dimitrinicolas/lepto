@@ -1,86 +1,65 @@
+const chokidar = require('chokidar');
+const deepDiff = require('deep-object-diff');
+const fastGlob = require('fast-glob');
 const fs = require('fs');
 const fse = require('fs-extra');
 const path = require('path');
-const fastGlob = require('fast-glob');
-const chokidar = require('chokidar');
-const deepDiff = require('deep-object-diff');
 
+const beautifier = require('./beautifier.js');
 const defaultConfig = require('./default-config.js');
+const globbers = require('./globbers.js');
 const log = require('./log.js');
 const pipe = require('./pipe.js');
-const globbers = require('./globbers.js');
 const saveData = require('./save-data.js');
-const loadConfig = require('./load-config.js');
-const beautifier = require('./beautifier.js');
 
 class Runner {
-  constructor(config, cliConfig) {
-    this.cli = config.___cli ? true : false;
-    this.cliConfig = cliConfig;
+  constructor(config={}, params={}) {
+    this.cli = params.cli ? true : false;;
+    this.cliConfig = typeof params.cliConfig !== 'undefined' ? params.cliConfig : {};
     const configSet = this.setConfig(config);
     if (configSet.success) {
       this.processAll();
     }
     else {
-      log(configSet.msg, 'red', 'error');
+      log.error(configSet.msg);
     }
   }
 
   setConfig(config) {
-    let options = Object.assign({}, defaultConfig.main, config.config);
-    if (this.cliConfig) {
-      Object.assign(options, this.cliConfig);
-    }
+    config = this.normalizeConfig(config);
 
     this.globbersList = globbers.generate({
-      dir: options.input,
-      use: options.use,
-      filters: options.filters
+      dir: config.input,
+      use: config.use,
+      filters: config.filters
     });
 
-    if (!options.input) {
+    if (!config.input) {
       return {
         success: false,
-        msg: 'Lepto - Missing input'
+        msg: 'Missing input'
       };
     }
-    if (!options.output) {
+    if (!config.output) {
       return {
         success: false,
-        msg: 'Lepto - Missing output'
+        msg: 'Missing output'
       };
     }
 
-    this.configPath = config.filepath;
-    this.options = options;
+    this.config = config;
 
-    if (typeof this.options.logLevel !== 'undefined') {
-       log.setLevel(this.options.logLevel);
-    }
-    else {
-      log.setLevel('max');
-    }
-
-    this.globAllInput = path.resolve(this.options.input) + '/**/*.*';
-    this.globAllOutput = path.resolve(this.options.output) + '/**/*.*';
+    this.globAllInput = path.resolve(this.config.input) + '/**/*.*';
+    this.globAllOutput = path.resolve(this.config.output) + '/**/*.*';
 
     if (this.watcher) {
       this.watcher.close();
     }
-    if (this.options.watch) {
+    if (this.config.watch) {
       this.watcher = chokidar.watch(this.globAllInput, {
         ignoreInitial: true,
         ignored: this.globAllOutput
       }).on('all', this.handleWatchEvent.bind(this));
-    }
-
-    if (this.configWatcher) {
-      this.configWatcher.close();
-    }
-    if (this.options.watchConfig && this.cli) {
-      this.configWatcher = chokidar.watch(this.configPath, {
-        ignoreInitial: true
-      }).on('all', this.handleConfigWatchEvent.bind(this));
     }
 
     return {
@@ -88,34 +67,44 @@ class Runner {
     };
   }
 
-  handleWatchEvent(event, path) {
-    if (['add', 'change'].indexOf(event) !== -1) {
-      this.processList([path], event);
+  handleConfigUpdate(newConfig) {
+    newConfig = this.normalizeConfig(newConfig);
+
+    const diff = deepDiff.diff(newConfig, this.config);
+    if (Object.keys(diff).length) {
+      const configSet = this.setConfig(newConfig);
+      if (configSet.success) {
+        log.info('Config updated');
+        this.processAll();
+      }
+      else if (!configSet.success) {
+        log.warn(['Unable to update config:', configSet.msg]);
+      }
+    }
+    else {
+      log.info('Config file changed, but no difference found');
     }
   }
 
-  handleConfigWatchEvent(event, path) {
-    if (event === 'change') {
-      const newConfigResult = loadConfig(path, { cli: true });
-      if (newConfigResult.success) {
-        const diff = deepDiff.diff(newConfigResult.config, this.options);
-        if (Object.keys(diff).length) {
-          const configSet = this.setConfig(newConfigResult);
-          if (configSet.success) {
-            log('Lepto - Config updated');
-            this.processAll();
-          }
-          else if (!configSet.success) {
-            log(['Lepto - Unable to update config:', configSet.msg], 'red', 'warn');
-          }
-        }
-        else {
-          log('Lepto - Config file changed, but no difference found', 'white', 1);
-        }
-      }
-      else {
-        log(['Lepto - Unable to get config file:', newConfigResult.msg], 'red', 'warn');
-      }
+  normalizeConfig(config) {
+    if (this.cli) {
+      config = Object.assign({}, defaultConfig.main, defaultConfig.cli, config);
+    }
+    else {
+      config = Object.assign({}, defaultConfig.main, config);
+    }
+    if (this.cliConfig) {
+      Object.assign(config, this.cliConfig);
+    }
+    return config;
+  }
+
+  handleWatchEvent(event, filePath) {
+    if (['add', 'change'].indexOf(event) !== -1) {
+      this.processList([filePath], event);
+    }
+    if (event === 'unlink' && this.config.followUnlink) {
+      this.unlink(filePath);
     }
   }
 
@@ -123,13 +112,22 @@ class Runner {
     for (let item of list) {
       const processStart = Date.now();
       const pluginsList = globbers.getPluginsList(this.globbersList, item);
-      const relativePath = path.relative(path.resolve(process.cwd(), this.options.input), item);
+      const relativePath = path.relative(path.resolve(process.cwd(), this.config.input), item);
       const adjs = {
         add: 'new',
         change: 'changed'
       };
       let adj = typeof adjs[event] !== 'undefined' ? adjs[event] + ' ' : '';
-      if (pluginsList.length) {
+      if (pluginsList.length === 0) {
+        const buffer = fs.readFileSync(item);
+        const outputPath = path.resolve(this.config.output + '/' + path.dirname(relativePath) + '/' + path.basename(relativePath));
+        fse.outputFile(outputPath, buffer, err => {
+          if (err) {
+            log.error(`Unable to save ${outputPath} file`);
+          }
+        });
+      }
+      else {
         const buffer = fs.readFileSync(item);
         const inputSize = buffer.length;
         const pipedData = {
@@ -148,16 +146,39 @@ class Runner {
         for (let item of pluginsList) {
           pluginsFuncs.push(item.__func);
         }
-        pipe(pipedData, pluginsFuncs).then(function(res) {
-          const timeSpent = Date.now() - processStart;
-          if (this.options.dataOutput && Object.keys(res.data).length) {
-            saveData(path.resolve(process.cwd(), this.options.dataOutput), res.input, res.data);
+        pipe(pipedData, pluginsFuncs).then(function(res={}) {
+          if (typeof res === null || typeof res !== 'object') {
+            log.error('Some piped data have been deteriorated by a plugin');
+            return;
           }
-          else if (!this.options.dataOutput && Object.keys(res.data).length) {
-            log(`Lepto - Some plugins are outputing data but you didn't set up a dataOutput path`, 'white', 'info', 'data-output-disabled');
+          if (res.__error) {
+            let additionalInfo = '';
+            if (res.remainingPlugins) {
+              const failingPlugin = pluginsList[pluginsList.length - res.remainingPlugins - 1] || {};
+              if (failingPlugin.name) {
+                additionalInfo = `, some data have been deteriorated by the plugin ${failingPlugin.name}`;
+              }
+              else if (failingPlugin.__func) {
+                if (failingPlugin.__func.name) {
+                  additionalInfo = `, some data have been deteriorated by the plugin function named "${failingPlugin.__func.name}"`;
+                }
+                else {
+                  additionalInfo = `, some data have been deteriorated by the unamed plugin function: ${failingPlugin.__func}`;
+                }
+              }
+            }
+            log.error(`Unable to process ${relativePath}` + additionalInfo);
+            return;
+          }
+          const timeSpent = Date.now() - processStart;
+          if (this.config.dataOutput && Object.keys(res.data).length) {
+            saveData(path.resolve(process.cwd(), this.config.dataOutput), res.input, res.data);
+          }
+          else if (!this.config.dataOutput && Object.keys(res.data).length) {
+            log.info(`Some plugins are outputing data but you didn't set up a dataOutput path`);
           }
           let maxSave = 0;
-          let saveTxt = '';
+          let saveText = '';
           let outputsText = [];
           for (let output of res.outputs) {
             maxSave = Math.min(Math.max(0, maxSave, 1 - output.buffer.length / inputSize), 1);
@@ -165,17 +186,17 @@ class Runner {
           }
           if (res.outputs.length > 1) {
             outputsText = '[ ' + outputsText.join(', ') + ' ]';
-            saveTxt = `max save: ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
+            saveText = `max save ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
           }
           else {
-            saveTxt = `saved: ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
+            saveText = `saved ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
           }
-          log(`\nLepto - Processed ${adj}file ${relativePath} (${beautifier.bytes(inputSize)}) with ${pluginsList.length} plugin${pluginsList.length > 1 ? 's' : ''} in ${beautifier.time(timeSpent)} -> ${outputsText}, ${saveTxt}`);
+          log.success(`Processed ${adj}${relativePath} (${beautifier.bytes(inputSize)}) in ${beautifier.time(timeSpent)} -> ${outputsText}, ${saveText}`);
           for (let output of res.outputs) {
-            const outputPath = path.resolve(this.options.output + '/' + output.dir + '/' + output.filename);
+            const outputPath = path.resolve(this.config.output + '/' + output.dir + '/' + output.filename);
             fse.outputFile(outputPath, output.buffer, err => {
               if (err) {
-                log(`Lepto - Unable to save ${outputPath} file`, 'red', 'error');
+                log.error(`Unable to save ${outputPath}`);
               }
             });
           }
@@ -185,10 +206,28 @@ class Runner {
   }
 
   processAll() {
-    const entries = fastGlob.sync(this.globAllInput, {
+    this.processList(fastGlob.sync(this.globAllInput, {
       ignore: [this.globAllOutput]
+    }));
+  }
+
+  unlink(filePath) {
+    if (this.config.dataOutput) {
+      const relativePath = path.relative(path.resolve(process.cwd(), this.config.input), filePath);
+      saveData(path.resolve(process.cwd(), this.config.dataOutput), relativePath, null);
+    }
+    fse.remove(filePath, err => {
+      if (err) {
+        log.error(`Unable to follow unlink of ${filePath}`);
+      }
+      else {
+        log.success(`Removed ${filePath}`);
+      }
     });
-    this.processList(entries);
+  }
+
+  handleLog(logger) {
+    log.setLogger(logger);
   }
 };
 

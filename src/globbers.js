@@ -1,5 +1,5 @@
-const path = require('path');
 const minimatch = require('minimatch');
+const path = require('path');
 
 const plugins = require('./plugins.js');
 

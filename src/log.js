@@ -1,58 +1,44 @@
-const chalk = require('chalk');
+let logger;
 
-const colors = {
-  red: chalk.red.bold,
-  white: chalk.keyword('lightgrey'),
-  green: chalk.keyword('lime')
-};
-
-let levels = {
-  max: 3,
-  all: 3,
-  min: 0,
-  quiet: 0,
-  info: 3,
-  warn: 2,
-  error: 1
-}
-let logLevel = 2;
-
-let onces = {};
-
-const getLevel = () => {
-  return logLevel;
-}
-
-const getLevelCode = (level) => {
-  if (typeof level === 'string' && typeof levels[level] !== 'undefined') {
-    return levels[level];
-  }
-  else if (typeof level === 'number') {
-    return Math.min(Math.max(level, levels.min), levels.max);
-  }
-  return levels.max;
-}
-
-const setLevel = (level) => {
-  logLevel = getLevelCode(level);
-};
-
-const log = (txt='', color='green', level=levels.max, callOnce=null) => {
-  level = getLevelCode(level);
-  if (Array.isArray(txt)) {
-    txt = txt.join(' ');
-  }
-  if (level <= logLevel) {
-    if (typeof colors[color] === 'undefined') {
-      color = 'green';
-    }
-    if (!callOnce || (callOnce && typeof onces[callOnce] === 'undefined')) {
-      console.log(colors[color](txt));
-    }
-    if (callOnce && typeof onces[callOnce] === 'undefined') {
-      onces[callOnce] = true;
-    }
+const log = (text='', opts) => {
+  if (typeof logger === 'function') {
+    logger(text, opts);
   }
 };
 
-module.exports = Object.assign(log, { getLevel, getLevelCode, setLevel });
+const setLogger = (newLogger) => {
+  if (typeof newLogger === 'function') {
+    logger = newLogger;
+  }
+};
+
+const error = (text, callOnceId=null) => {
+  log(text, {
+    color: 'red',
+    level: 1,
+    callOnceId: callOnceId
+  });
+};
+const warn = (text, callOnceId=null) => {
+  log(text, {
+    color: 'orange',
+    level: 2,
+    callOnceId: callOnceId
+  });
+};
+const info = (text, callOnceId=null) => {
+  log(text, {
+    color: 'white',
+    level: 3,
+    callOnceId: callOnceId
+  });
+};
+const success = (text, callOnceId=null) => {
+  log(text, {
+    color: 'green',
+    level: 3,
+    callOnceId: callOnceId
+  });
+};
+
+module.exports = Object.assign(log, { setLogger, error, warn, info, success });

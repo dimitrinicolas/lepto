@@ -31,7 +31,14 @@ const satinize = (list) => {
 
   for (let plugin of list) {
     let pluginRes = null;
-    if (typeof plugin === 'string') {
+    if (typeof plugin === 'function') {
+      pluginRes = Object.assign({}, __defaultConfigProps, {
+        name: null,
+        __invoked: true,
+        __func: plugin
+      });
+    }
+    else if (typeof plugin === 'string') {
       pluginRes = Object.assign({}, __defaultConfigProps, {
         name: plugin,
         __func: resolverPlugin(plugin)
@@ -48,9 +55,12 @@ const satinize = (list) => {
       }
     }
     if (pluginRes && !pluginRes.disabled) {
-      res.push(Object.assign({}, pluginRes, {
-        __func: pluginRes.__func(pluginRes)
-      }));
+      if (!pluginRes.__invoked) {
+        pluginRes = Object.assign({}, pluginRes, {
+          __func: pluginRes.__func(pluginRes)
+        });
+      }
+      res.push(pluginRes);
     }
   }
 

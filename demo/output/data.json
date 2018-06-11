@@ -3,7 +3,7 @@
     "vibrantColor": {
       "vibrant": "#42549c",
       "lightVibrant": "#eaa7b5",
-      "debugarkVibrant": "#301c62",
+      "darkVibrant": "#301c62",
       "muted": "#a25a93",
       "lightMuted": "#b6b6df",
       "darkMuted": "#343c54"
@@ -13,7 +13,7 @@
     "vibrantColor": {
       "vibrant": "#6c94d1",
       "lightVibrant": "#8cb4f4",
-      "debugarkVibrant": "#042048",
+      "darkVibrant": "#042048",
       "muted": "#6a7fa3",
       "lightMuted": "#9daac5",
       "darkMuted": "#2c3857"
@@ -23,7 +23,7 @@
     "vibrantColor": {
       "vibrant": "#429bc9",
       "lightVibrant": "#acd2f4",
-      "debugarkVibrant": "#0d7aa5",
+      "darkVibrant": "#0d7aa5",
       "muted": "#4f8fb3",
       "lightMuted": "#aec4d4",
       "darkMuted": "#263a46"

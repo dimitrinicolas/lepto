@@ -1,19 +1,34 @@
-const pipe = (data, plugins) => {
+const log = require('./log.js');
+
+process.on('unhandledRejection', (reason, p) => {
+  log.error(['Unhandled error in a promise', p, 'reason:', reason]);
+});
+
+
+const pipe = (input, plugins) => {
   return new Promise(function(fulfill, reject) {
-    let newPlugins = [];
-    if (plugins.length > 1) {
-      for (let i = 1; i < plugins.length; i++) {
-        newPlugins.push(plugins[i]);
-      }
-      plugins[0](data, function(res) {
-        pipe(res, newPlugins).then(fulfill);
+    if (input === null || typeof input !== 'object' || typeof input.input !== 'string' || !Array.isArray(input.outputs)) {
+      fulfill({
+        __error: true,
+        remainingPlugins: plugins.length
       });
     }
-    else if (plugins.length === 1) {
-      plugins[0](data, fulfill);
-    }
     else {
-      fulfill(data);
+      let newPlugins = [];
+      if (plugins.length > 1) {
+        for (let i = 1; i < plugins.length; i++) {
+          newPlugins.push(plugins[i]);
+        }
+        plugins[0](input, function(res) {
+          pipe(res, newPlugins).then(fulfill);
+        });
+      }
+      else if (plugins.length === 1) {
+        plugins[0](input, fulfill);
+      }
+      else {
+        fulfill(input);
+      }
     }
   });
 };

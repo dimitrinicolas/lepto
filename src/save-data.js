@@ -19,9 +19,12 @@ const saveData = (output, file, data) => {
   }
   dataContent[file] = data;
   outputingData = Object.assign({}, dataContent);
+  if (data === null) {
+    delete dataContent[file];
+  }
   fse.outputFile(output, JSON.stringify(dataContent, null, 2), err => {
     if (err) {
-      log(`Lepto - Unable to save data json file ${output}`, 'red', 'error');
+      log.error(`Unable to save data json file ${output}`);
     }
   })
 };

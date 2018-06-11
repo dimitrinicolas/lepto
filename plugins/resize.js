@@ -9,7 +9,7 @@ const resize = (options={}) => {
   const retinaPrefix = typeof options.prefix !== 'undefined' ? options.prefix : '@';
   const retinaSuffix = typeof options.suffix !== 'undefined' ? options.suffix : 'x';
 
-  return function(input, fulfill) {
+  return function resize(input, fulfill) {
     let finish = -input.outputs.length + 1;
     const next = () => {
       finish++;

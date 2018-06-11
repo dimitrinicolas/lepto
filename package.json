@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/dimitrinicolas/lepto",
   "dependencies": {
-    "chalk": "^2.4.1",
     "chokidar": "^2.0.3",
     "deep-object-diff": "^1.1.0",
     "fast-glob": "^2.2.2",

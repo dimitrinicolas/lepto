@@ -3,6 +3,7 @@ const cli = {
   output: null,
   watch: true,
   watchConfig: false,
+  followUnlink: false,
   logLevel: 'all',
   dataOutput: null,
   filters: []
@@ -13,6 +14,7 @@ const main = {
   output: null,
   watch: false,
   watchConfig: false,
+  followUnlink: false,
   logLevel: 'all',
   dataOutput: null,
   filters: []

@@ -2,6 +2,7 @@
   "input": "./demo/input",
   "output": "./demo/output",
   "watchConfig": true,
+  "followUnlink": true,
   "dataOutput": "./demo/output/data.json",
   "filters": [
     {
