@@ -1,8 +1,10 @@
-const sharp = require('sharp');
+const PngQuant = require('pngquant');
 
 const png = (opts={}) => {
-  const compression = typeof opts.compression !== 'undefined' ? opts.compression : 9;
-  const progressive = typeof opts.progressive !== 'undefined' ? opts.progressive : true;
+  const ncolors = typeof opts.ncolors !== 'undefined' ? opts.ncolors : 256;
+  const quality = typeof opts.quality !== 'undefined' ? opts.quality : '70-80';
+  const speed = typeof opts.speed !== 'undefined' ? opts.speed : 3;
+  const args = [ncolors, '--nofs', '--quality', quality, '--speed', speed];
 
   return function png(input, fulfill, utils) {
     let finish = -input.outputs.length + 1;
@@ -16,21 +18,22 @@ const png = (opts={}) => {
     finish = -input.outputs.length + 1;
     for (let i in input.outputs) {
       if (utils.mime(input.outputs[i].buffer) === 'image/png') {
-        sharp(input.outputs[i].buffer)
-          .png({
-            compressionLevel: compression,
-            progressive
-          })
-          .toBuffer()
-          .then(function(i) {
-            return function(buffer) {
-              if (buffer.length < input.outputs[i].buffer.length) {
-                input.outputs[i].buffer = buffer;
-              }
-              next();
-            };
-          }(i))
-          .catch(next);
+        const myPngQuanter = new PngQuant(args);
+
+        const chunks = [];
+        myPngQuanter.on('error', function(err) {
+          console.log('err', err);
+          next();
+        }).on('data', function(chunk) {
+          chunks.push(chunk);
+        }).on('end', function() {
+          const buffer = Buffer.concat(chunks);
+          if (buffer.length < input.outputs[i].buffer.length) {
+            input.outputs[i].buffer = buffer;
+          }
+          next();
+        });
+        myPngQuanter.end(input.outputs[i].buffer);
       }
       else {
         next();

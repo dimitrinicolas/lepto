@@ -6,10 +6,9 @@ const fs = require('fs');
 const fse = require('fs-extra');
 const path = require('path');
 
-const beautifier = require('./beautifier.js');
 const defaultConfig = require('./default-config.js');
 const filters = require('./filters.js');
-const log = require('./log.js');
+const events = require('./events.js');
 const pipe = require('./pipe.js');
 const saveData = require('./save-data.js');
 
@@ -24,7 +23,7 @@ class Runner {
       }
     }
     else {
-      log.error(configSet.msg);
+      events.dispatch('error', configSet.msg);
     }
   }
 
@@ -77,15 +76,21 @@ class Runner {
     if (Object.keys(diff).length) {
       const configSet = this.setConfig(newConfig);
       if (configSet.success) {
-        log.info('Config updated');
+        events.dispatch('info', {
+          msg: 'Config updated'
+        });
         this.processAll();
       }
       else if (!configSet.success) {
-        log.warn(['Unable to update config:', configSet.msg]);
+        events.dispatch('warn', {
+          msg: `Unable to update config: ${configSet.msg}`
+        });
       }
     }
     else {
-      log.info('Config file changed, but no difference found');
+      events.dispatch('info', {
+        msg: 'Config file changed, but no difference found'
+      });
     }
   }
 
@@ -124,13 +129,13 @@ class Runner {
       if (pluginsList.length === 0) {
         fs.readFile(item, (err, buffer) => {
           if (err) {
-            log.error(`Unable to read ${item}`);
+            events.dispatch('error', `Unable to read ${item}`);
             return;
           }
           const outputPath = path.resolve(this.config.output + '/' + path.dirname(relativePath) + '/' + path.basename(relativePath));
           fse.outputFile(outputPath, buffer, err => {
             if (err) {
-              log.error(`Unable to save ${outputPath} file`);
+              events.dispatch('error', `Unable to save ${outputPath} file`);
             }
           });
         });
@@ -138,7 +143,7 @@ class Runner {
       else {
         fs.readFile(item, (err, buffer) => {
           if (err) {
-            log.error(`Unable to read ${item}`);
+            events.dispatch('error', `Unable to read ${item}`);
             return;
           }
           let imgType = fileType(buffer);
@@ -163,7 +168,7 @@ class Runner {
               }
               pipe(pipedData, pluginsFuncs).then(function(res={}) {
                 if (typeof res === null || typeof res !== 'object') {
-                  log.error('Some piped data have been deteriorated by a plugin');
+                  events.dispatch('error', 'Some piped data have been deteriorated by a plugin');
                   return;
                 }
                 if (res.__error) {
@@ -182,33 +187,42 @@ class Runner {
                       }
                     }
                   }
-                  log.error(`Unable to process ${relativePath}` + additionalInfo);
+                  events.dispatch('error', `Unable to process ${relativePath}${additionalInfo}`);
                   return;
                 }
                 const timeSpent = Date.now() - processStart;
                 if (this.config.dataOutput && Object.keys(res.data).length) {
-                  saveData(path.resolve(process.cwd(), this.config.dataOutput), res.input, res.data);
+                  let inputName = res.input;
+                  if (this.config.dataRootPath) {
+                    inputName = path.relative(path.resolve(process.cwd(), this.config.dataRootPath), path.resolve(process.cwd(), this.config.input, inputName));
+                  }
+                  saveData(path.resolve(process.cwd(), this.config.dataOutput), inputName, res.data);
                 }
                 else if (!this.config.dataOutput && Object.keys(res.data).length) {
-                  log.info(`Some plugins are outputing data but you didn't set up a dataOutput path`);
+                  events.dispatch('info', {
+                    msg: `Some plugins are outputing data but you didn't set up a dataOutput path`
+                  });
                 }
-                let maxSave = 0;
-                let saveText = '';
-                let outputsText = [];
+                let outputFiles = [];
+                let outputSizes = [];
                 for (let output of res.outputs) {
-                  maxSave = Math.min(Math.max(0, maxSave, 1 - output.buffer.length / inputSize), 1);
-                  outputsText.push(`${output.dir === '.' ? '' : output.dir + '/'}${output.filename} (${beautifier.bytes(output.buffer.length)})`);
+                  outputFiles.push(`${output.dir === '.' ? '' : output.dir + '/'}${output.filename}`);
+                  outputSizes.push(output.buffer.length);
                 }
-                saveText = `saved ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
-                if (res.outputs.length > 1) {
-                  outputsText = '[ ' + outputsText.join(', ') + ' ]';
-                }
-                log.success(`Processed ${adj}${relativePath} (${beautifier.bytes(inputSize)}) in ${beautifier.time(timeSpent)} -> ${outputsText}, ${saveText}`);
+                events.dispatch('processed-file', {
+                  adj,
+                  input: relativePath,
+                  inputSize,
+                  output: outputFiles,
+                  outputSizes: outputSizes,
+                  timeSpent,
+                  pluginsNumber: pluginsList.length
+                });
                 for (let output of res.outputs) {
                   const outputPath = path.resolve(this.config.output + '/' + output.dir + '/' + output.filename);
                   fse.outputFile(outputPath, output.buffer, err => {
                     if (err) {
-                      log.error(`Unable to save ${outputPath}`);
+                      events.dispatch('error', `Unable to save ${outputPath}`);
                     }
                   });
                 }
@@ -230,21 +244,27 @@ class Runner {
 
   unlink(filePath) {
     if (this.config.dataOutput) {
-      const relativePath = path.relative(path.resolve(process.cwd(), this.config.input), filePath);
-      saveData(path.resolve(process.cwd(), this.config.dataOutput), relativePath, null);
+      let inputName = path.relative(path.resolve(process.cwd(), this.config.input), filePath);
+      if (this.config.dataRootPath) {
+        inputName = path.relative(path.resolve(process.cwd(), this.config.dataRootPath), path.resolve(process.cwd(), this.config.input, inputName));
+      }
+      saveData(path.resolve(process.cwd(), this.config.dataOutput), inputName, null);
     }
     fse.remove(filePath, err => {
       if (err) {
-        log.error(`Unable to follow unlink of ${filePath}`);
+        events.dispatch('error', `Unable to follow unlink of ${filePath}`);
       }
       else {
-        log.success(`Removed ${filePath}`);
+        events.dispatch('success', {
+          msg: `Removed ${filePath}`
+        });
       }
     });
   }
 
-  handleLog(logger) {
-    log.setLogger(logger);
+  on(name, func) {
+    events.on(name, func);
+    return this;
   }
 };
 
