@@ -20,39 +20,35 @@ const getPluginsList = (filters, path) => {
   return pluginsList;
 };
 
-const generate = (input, parentDir) => {
-  let resList = [];
+const generateFilter = (opts, parentDir) => {
   let res = {
     glob: [],
-    plugins: []
+    plugins: plugins.satinize(opts.use)
   };
 
-  const addPath = (glob) => {
+  const addParent = (glob) => {
     return (typeof parentDir !== 'undefined' ? parentDir + '/' : '') + glob;
   };
 
-  if (!Array.isArray(input.glob)) {
-    if (typeof input.glob !== 'undefined') {
-      res.glob = [addPath(input.glob)];
-    }
+  const dirStr = path.resolve(addParent(opts.dir || ''));
+  if (Array.isArray(opts.glob)) {
+    res.glob = opts.glob.map(str => addParent(str));
+  }
+  else if (typeof opts.glob === 'string') {
+    res.glob = [addParent(opts.glob)];
   }
   else {
-    res.glob = input.glob.map(str => addPath(str));
-  }
-  const dirStr = path.resolve(addPath(input.dir || ''));
-  if (!res.glob.length) {
     res.glob = [dirStr + '/**/*.*'];
   }
 
-  res.plugins = plugins.satinize(input.use);
+  return res;
+}
 
-  resList.push(res);
-  if (input.filters) {
-    for (let filter of input.filters) {
-      resList.push(generate(Object.assign({}, filter), dirStr)[0]);
-    }
+const generate = (dir, filters=[]) => {
+  let resList = [];
+  for (let item of filters) {
+    resList.push(generateFilter(Object.assign({}, item), dir));
   }
-
   return resList;
 };
 

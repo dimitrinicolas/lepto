@@ -17,7 +17,10 @@ const svg = (opts={}) => {
       if (utils.mime(input.outputs[i].buffer) === 'application/xml') {
         svgo.optimize(input.outputs[i].buffer.toString()).then(function(i) {
           return function(res) {
-            input.outputs[i].buffer = Buffer.from(res.data);
+            const buffer = Buffer.from(res.data);
+            if (buffer.length < input.outputs[i].buffer.length) {
+              input.outputs[i].buffer = buffer;
+            }
             next();
           };
         }(i));

@@ -5,22 +5,30 @@
   "watchConfig": true,
   "followUnlink": true,
   "dataOutput": "demo/output/data.json",
-  "use": [
-    {
-      "name": "lepto.jpeg",
-      "quality": 75,
-      "forceExt": "jpg"
-    },
-    {
-      "name": "lepto.png",
-      "compression": 9
-    },
-    {
-      "name": "lepto.svg",
-      "compression": 9
-    }
-  ],
   "filters": [
+    {
+      "glob": "**/*.*",
+      "use": [
+        {
+          "name": "lepto.jpeg",
+          "quality": 75,
+          "forceExt": "jpg"
+        },
+        {
+          "name": "lepto.png",
+          "compression": 9
+        },
+        {
+          "name": "lepto.gif",
+          "colors": 100,
+          "optimizationLevel": 3,
+          "interlaced": true
+        },
+        {
+          "name": "lepto.svg"
+        }
+      ]
+    },
     {
       "glob": ["**/*.{jpg,jpeg}"],
       "use": [

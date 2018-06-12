@@ -24,7 +24,9 @@ const png = (opts={}) => {
           .toBuffer()
           .then(function(i) {
             return function(buffer) {
-              input.outputs[i].buffer = buffer;
+              if (buffer.length < input.outputs[i].buffer.length) {
+                input.outputs[i].buffer = buffer;
+              }
               next();
             };
           }(i))

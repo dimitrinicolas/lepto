@@ -30,13 +30,6 @@ class Runner {
 
   setConfig(config) {
     config = this.normalizeConfig(config);
-
-    this.filtersList = filters.generate({
-      dir: config.input,
-      use: config.use,
-      filters: config.filters
-    });
-
     if (!config.input) {
       return {
         success: false,
@@ -58,6 +51,7 @@ class Runner {
 
     this.config = config;
 
+    this.filtersList = filters.generate(path.resolve(this.config.input), this.config.filters);
     this.globAllInput = path.resolve(this.config.input) + '/**/*.*';
     this.globAllOutput = path.resolve(this.config.output) + '/**/*.*';
 
@@ -205,12 +199,9 @@ class Runner {
                   maxSave = Math.min(Math.max(0, maxSave, 1 - output.buffer.length / inputSize), 1);
                   outputsText.push(`${output.dir === '.' ? '' : output.dir + '/'}${output.filename} (${beautifier.bytes(output.buffer.length)})`);
                 }
+                saveText = `saved ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
                 if (res.outputs.length > 1) {
                   outputsText = '[ ' + outputsText.join(', ') + ' ]';
-                  saveText = `max save ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
-                }
-                else {
-                  saveText = `saved ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
                 }
                 log.success(`Processed ${adj}${relativePath} (${beautifier.bytes(inputSize)}) in ${beautifier.time(timeSpent)} -> ${outputsText}, ${saveText}`);
                 for (let output of res.outputs) {

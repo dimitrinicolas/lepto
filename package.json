@@ -24,9 +24,11 @@
   "dependencies": {
     "chokidar": "^2.0.3",
     "deep-object-diff": "^1.1.0",
+    "exec-buffer": "^3.2.0",
     "fast-glob": "^2.2.2",
     "file-type": "^8.0.0",
     "fs-extra": "^6.0.1",
+    "gifsicle": "^3.0.4",
     "image-size": "^0.6.2",
     "minimatch": "^3.0.4",
     "sharp": "^0.20.3",
