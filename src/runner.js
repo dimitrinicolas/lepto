@@ -8,7 +8,7 @@ const path = require('path');
 
 const beautifier = require('./beautifier.js');
 const defaultConfig = require('./default-config.js');
-const globbers = require('./globbers.js');
+const filters = require('./filters.js');
 const log = require('./log.js');
 const pipe = require('./pipe.js');
 const saveData = require('./save-data.js');
@@ -19,7 +19,9 @@ class Runner {
     this.cliConfig = typeof params.cliConfig !== 'undefined' ? params.cliConfig : {};
     const configSet = this.setConfig(config);
     if (configSet.success) {
-      this.processAll();
+      if (this.config.processAll) {
+        this.processAll();
+      }
     }
     else {
       log.error(configSet.msg);
@@ -29,7 +31,7 @@ class Runner {
   setConfig(config) {
     config = this.normalizeConfig(config);
 
-    this.globbersList = globbers.generate({
+    this.filtersList = filters.generate({
       dir: config.input,
       use: config.use,
       filters: config.filters
@@ -45,6 +47,12 @@ class Runner {
       return {
         success: false,
         msg: 'Missing output'
+      };
+    }
+    if (path.resolve(config.input) === path.resolve(config.output)) {
+      return {
+        success: false,
+        msg: `Input and output can't be the same directory`
       };
     }
 
@@ -112,7 +120,7 @@ class Runner {
   processList(list, event) {
     for (let item of list) {
       const processStart = Date.now();
-      const pluginsList = globbers.getPluginsList(this.globbersList, item);
+      const pluginsList = filters.getPluginsList(this.filtersList, item);
       const relativePath = path.relative(path.resolve(process.cwd(), this.config.input), item);
       const adjs = {
         add: 'new',
@@ -120,101 +128,113 @@ class Runner {
       };
       let adj = typeof adjs[event] !== 'undefined' ? adjs[event] + ' ' : '';
       if (pluginsList.length === 0) {
-        const buffer = fs.readFileSync(item);
-        const outputPath = path.resolve(this.config.output + '/' + path.dirname(relativePath) + '/' + path.basename(relativePath));
-        fse.outputFile(outputPath, buffer, err => {
+        fs.readFile(item, (err, buffer) => {
           if (err) {
-            log.error(`Unable to save ${outputPath} file`);
+            log.error(`Unable to read ${item}`);
+            return;
           }
+          const outputPath = path.resolve(this.config.output + '/' + path.dirname(relativePath) + '/' + path.basename(relativePath));
+          fse.outputFile(outputPath, buffer, err => {
+            if (err) {
+              log.error(`Unable to save ${outputPath} file`);
+            }
+          });
         });
       }
       else {
-        const buffer = fs.readFileSync(item);
-        let imgType = fileType(buffer);
-        if (imgType !== null) {
-          if (imgType.mime.split('/')[0] === 'image') {
-            const inputSize = buffer.length;
-            const pipedData = {
-              input: relativePath,
-              outputs: [
-                {
-                  dir: path.dirname(relativePath),
-                  filename: path.basename(relativePath),
-                  buffer: buffer
-                }
-              ],
-              data: {}
-            };
-
-            const pluginsFuncs = [];
-            for (let item of pluginsList) {
-              pluginsFuncs.push(item.__func);
-            }
-            pipe(pipedData, pluginsFuncs).then(function(res={}) {
-              if (typeof res === null || typeof res !== 'object') {
-                log.error('Some piped data have been deteriorated by a plugin');
-                return;
-              }
-              if (res.__error) {
-                let additionalInfo = '';
-                if (res.remainingPlugins) {
-                  const failingPlugin = pluginsList[pluginsList.length - res.remainingPlugins - 1] || {};
-                  if (failingPlugin.name) {
-                    additionalInfo = `, some data have been deteriorated by the plugin ${failingPlugin.name}`;
-                  }
-                  else if (failingPlugin.__func) {
-                    if (failingPlugin.__func.name) {
-                      additionalInfo = `, some data have been deteriorated by the plugin function named "${failingPlugin.__func.name}"`;
-                    }
-                    else {
-                      additionalInfo = `, some data have been deteriorated by the unamed plugin function: ${failingPlugin.__func}`;
-                    }
-                  }
-                }
-                log.error(`Unable to process ${relativePath}` + additionalInfo);
-                return;
-              }
-              const timeSpent = Date.now() - processStart;
-              if (this.config.dataOutput && Object.keys(res.data).length) {
-                saveData(path.resolve(process.cwd(), this.config.dataOutput), res.input, res.data);
-              }
-              else if (!this.config.dataOutput && Object.keys(res.data).length) {
-                log.info(`Some plugins are outputing data but you didn't set up a dataOutput path`);
-              }
-              let maxSave = 0;
-              let saveText = '';
-              let outputsText = [];
-              for (let output of res.outputs) {
-                maxSave = Math.min(Math.max(0, maxSave, 1 - output.buffer.length / inputSize), 1);
-                outputsText.push(`${output.dir === '.' ? '' : output.dir + '/'}${output.filename} (${beautifier.bytes(output.buffer.length)})`);
-              }
-              if (res.outputs.length > 1) {
-                outputsText = '[ ' + outputsText.join(', ') + ' ]';
-                saveText = `max save ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
-              }
-              else {
-                saveText = `saved ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
-              }
-              log.success(`Processed ${adj}${relativePath} (${beautifier.bytes(inputSize)}) in ${beautifier.time(timeSpent)} -> ${outputsText}, ${saveText}`);
-              for (let output of res.outputs) {
-                const outputPath = path.resolve(this.config.output + '/' + output.dir + '/' + output.filename);
-                fse.outputFile(outputPath, output.buffer, err => {
-                  if (err) {
-                    log.error(`Unable to save ${outputPath}`);
-                  }
-                });
-              }
-            }.bind(this));
+        fs.readFile(item, (err, buffer) => {
+          if (err) {
+            log.error(`Unable to read ${item}`);
+            return;
           }
-        }
+          let imgType = fileType(buffer);
+          if (imgType !== null) {
+            if (imgType.mime.split('/')[0] === 'image' || imgType.mime === 'application/xml') {
+              const inputSize = buffer.length;
+              const pipedData = {
+                input: relativePath,
+                outputs: [
+                  {
+                    dir: path.dirname(relativePath),
+                    filename: path.basename(relativePath),
+                    buffer: buffer
+                  }
+                ],
+                data: {}
+              };
+
+              const pluginsFuncs = [];
+              for (let item of pluginsList) {
+                pluginsFuncs.push(item.__func);
+              }
+              pipe(pipedData, pluginsFuncs).then(function(res={}) {
+                if (typeof res === null || typeof res !== 'object') {
+                  log.error('Some piped data have been deteriorated by a plugin');
+                  return;
+                }
+                if (res.__error) {
+                  let additionalInfo = '';
+                  if (res.remainingPlugins) {
+                    const failingPlugin = pluginsList[pluginsList.length - res.remainingPlugins - 1] || {};
+                    if (failingPlugin.name) {
+                      additionalInfo = `, some data have been deteriorated by the plugin ${failingPlugin.name}`;
+                    }
+                    else if (failingPlugin.__func) {
+                      if (failingPlugin.__func.name) {
+                        additionalInfo = `, some data have been deteriorated by the plugin function named "${failingPlugin.__func.name}"`;
+                      }
+                      else {
+                        additionalInfo = `, some data have been deteriorated by the unamed plugin function: ${failingPlugin.__func}`;
+                      }
+                    }
+                  }
+                  log.error(`Unable to process ${relativePath}` + additionalInfo);
+                  return;
+                }
+                const timeSpent = Date.now() - processStart;
+                if (this.config.dataOutput && Object.keys(res.data).length) {
+                  saveData(path.resolve(process.cwd(), this.config.dataOutput), res.input, res.data);
+                }
+                else if (!this.config.dataOutput && Object.keys(res.data).length) {
+                  log.info(`Some plugins are outputing data but you didn't set up a dataOutput path`);
+                }
+                let maxSave = 0;
+                let saveText = '';
+                let outputsText = [];
+                for (let output of res.outputs) {
+                  maxSave = Math.min(Math.max(0, maxSave, 1 - output.buffer.length / inputSize), 1);
+                  outputsText.push(`${output.dir === '.' ? '' : output.dir + '/'}${output.filename} (${beautifier.bytes(output.buffer.length)})`);
+                }
+                if (res.outputs.length > 1) {
+                  outputsText = '[ ' + outputsText.join(', ') + ' ]';
+                  saveText = `max save ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
+                }
+                else {
+                  saveText = `saved ${Math.floor(maxSave * 100 * 10) / 10 + '%'}`;
+                }
+                log.success(`Processed ${adj}${relativePath} (${beautifier.bytes(inputSize)}) in ${beautifier.time(timeSpent)} -> ${outputsText}, ${saveText}`);
+                for (let output of res.outputs) {
+                  const outputPath = path.resolve(this.config.output + '/' + output.dir + '/' + output.filename);
+                  fse.outputFile(outputPath, output.buffer, err => {
+                    if (err) {
+                      log.error(`Unable to save ${outputPath}`);
+                    }
+                  });
+                }
+              }.bind(this));
+            }
+          }
+        });
       }
     }
   }
 
   processAll() {
-    this.processList(fastGlob.sync(this.globAllInput, {
+    fastGlob(this.globAllInput, {
       ignore: [this.globAllOutput]
-    }));
+    }).then((entries) => {
+      this.processList(entries);
+    })
   }
 
   unlink(filePath) {

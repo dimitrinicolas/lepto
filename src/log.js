@@ -4,14 +4,6 @@ let waitingList = [];
 
 const log = (text='', opts={}) => {
   if (typeof logger === 'function') {
-    if (waitingList.length) {
-      let data = {
-        text: waitingList[waitingList.length - 1][0],
-        opts: waitingList[waitingList.length - 1][1]
-      };
-      waitingList.pop();
-      log(data.text, data.opts);
-    }
     logger(text, opts);
   }
   else {
@@ -22,6 +14,12 @@ const log = (text='', opts={}) => {
 const setLogger = (newLogger) => {
   if (typeof newLogger === 'function') {
     logger = newLogger;
+    if (waitingList.length) {
+      for (let waitingLog of waitingList) {
+        log(waitingLog[0], waitingLog[1]);
+      }
+      waitingList = [];
+    }
   }
 };
 

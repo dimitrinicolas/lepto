@@ -6,6 +6,8 @@ const cli = {
   followUnlink: false,
   logLevel: 'all',
   dataOutput: null,
+  processAll: true,
+  use: [],
   filters: []
 };
 
@@ -17,6 +19,8 @@ const main = {
   followUnlink: false,
   logLevel: 'all',
   dataOutput: null,
+  processAll: true,
+  use: [],
   filters: []
 };
 

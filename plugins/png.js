@@ -1,11 +1,10 @@
-const fileType = require('file-type');
 const sharp = require('sharp');
 
 const png = (opts={}) => {
   const compression = typeof opts.compression !== 'undefined' ? opts.compression : 9;
   const progressive = typeof opts.progressive !== 'undefined' ? opts.progressive : true;
 
-  return function png(input, fulfill) {
+  return function png(input, fulfill, utils) {
     let finish = -input.outputs.length + 1;
     const next = () => {
       finish++;
@@ -16,7 +15,7 @@ const png = (opts={}) => {
 
     finish = -input.outputs.length + 1;
     for (let i in input.outputs) {
-      if (fileType(input.outputs[i].buffer).mime === 'image/png') {
+      if (utils.mime(input.outputs[i].buffer) === 'image/png') {
         sharp(input.outputs[i].buffer)
           .png({
             compressionLevel: compression,

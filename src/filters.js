@@ -3,13 +3,13 @@ const path = require('path');
 
 const plugins = require('./plugins.js');
 
-const getPluginsList = (globbers, path) => {
+const getPluginsList = (filters, path) => {
   let pluginsList = [];
-  for (let globber of globbers) {
-    if (typeof globber !== 'undefined') {
-      for (let glob of globber.glob) {
+  for (let filterItem of filters) {
+    if (typeof filterItem !== 'undefined') {
+      for (let glob of filterItem.glob) {
         if (minimatch(path, glob)) {
-          for (let plugin of globber.plugins) {
+          for (let plugin of filterItem.plugins) {
             pluginsList = plugins.merge(pluginsList, [plugin]);
           }
           break;

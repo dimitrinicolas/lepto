@@ -1,7 +1,6 @@
 module.exports = {
   jpeg: require('./jpeg.js'),
   png: require('./png.js'),
-  vibrantColor: require('./vibrant-color.js'),
-  resize: require('./resize.js'),
+  svg: require('./svg.js'),
   webp: require('./webp.js')
 }

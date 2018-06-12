@@ -59,9 +59,16 @@ const satinize = (list) => {
     }
     if (pluginRes && !pluginRes.disabled) {
       if (!pluginRes.__invoked) {
-        pluginRes = Object.assign({}, pluginRes, {
-          __func: pluginRes.__func(pluginRes)
-        });
+        if (typeof pluginRes.__func !== 'function') {
+          pluginRes.__func = (input, fulfill) => {
+            fulfill(input);
+          };
+        }
+        else {
+          Object.assign(pluginRes, {
+            __func: pluginRes.__func(pluginRes)
+          });
+        }
       }
       res.push(pluginRes);
     }

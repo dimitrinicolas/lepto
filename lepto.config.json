@@ -1,12 +1,11 @@
 {
-  "input": "demo/input",
-  "output": "demo/output",
+  "input": "assets/input",
+  "output": "assets/output",
   "watch": true,
-  "dataOutput": "demo/output/data.json",
   "use": [
     {
       "name": "lepto.jpeg",
-      "quality": 30
+      "quality": 80
     },
     {
       "name": "lepto.png",
@@ -14,20 +13,6 @@
     }
   ],
   "filters": [
-    {
-      "glob": "**/*.{jpg,jpeg}",
-      "use": [
-        {
-          "name": "lepto.resize",
-          "maxWidth": 1200
-        },
-        {
-          "name": "lepto.webp",
-          "quality": 80
-        },
-        "lepto.vibrantColor"
-      ]
-    },
     {
       "glob": "**/*.png",
       "use": [

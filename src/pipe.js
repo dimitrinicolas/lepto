@@ -1,10 +1,10 @@
 const log = require('./log.js');
+const utilsFunc = require('./plugins-utils.js');
 
 process.on('unhandledRejection', (reason, p) => {
   log.error(['Unhandled error in a promise, reason:']);
   console.log(reason, p);
 });
-
 
 const pipe = (input, plugins) => {
   return new Promise(function(fulfill, reject) {
@@ -22,10 +22,10 @@ const pipe = (input, plugins) => {
         }
         plugins[0](input, function(res) {
           pipe(res, newPlugins).then(fulfill);
-        });
+        }, utilsFunc);
       }
       else if (plugins.length === 1) {
-        plugins[0](input, fulfill);
+        plugins[0](input, fulfill, utilsFunc);
       }
       else {
         fulfill(input);

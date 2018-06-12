@@ -8,10 +8,15 @@
   "use": [
     {
       "name": "lepto.jpeg",
-      "quality": 75
+      "quality": 75,
+      "forceExt": "jpg"
     },
     {
       "name": "lepto.png",
+      "compression": 9
+    },
+    {
+      "name": "lepto.svg",
       "compression": 9
     }
   ],
@@ -20,21 +25,22 @@
       "glob": ["**/*.{jpg,jpeg}"],
       "use": [
         {
-          "name": "lepto.resize",
+          "name": "../lepto-resize",
           "maxWidth": 1200
         },
         {
           "name": "lepto.webp",
           "quality": 80
         },
-        "lepto.vibrantColor"
+        "../lepto-vibrant-color"
       ]
     },
     {
       "glob": "**/*.png",
       "use": [
         {
-          "name": "lepto.resize",
+          "name": "../lepto-resize",
+          "maxSize": 64,
           "retina": [
             2,
             3

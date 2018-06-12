@@ -1,5 +1,3 @@
-const fileType = require('file-type');
-const path = require('path');
 const sharp = require('sharp');
 
 const webp = (opts={}) => {
@@ -7,7 +5,7 @@ const webp = (opts={}) => {
   const alphaQuality = typeof opts.alphaQuality !== 'undefined' ? opts.alphaQuality : 100;
   const lossless = typeof opts.lossless !== 'undefined' ? opts.lossless : false;
 
-  return function webp(input, fulfill) {
+  return function webp(input, fulfill, utils) {
     let finish = -input.outputs.length + 1;
     const next = () => {
       finish++;
@@ -17,10 +15,10 @@ const webp = (opts={}) => {
     };
 
     for (let i = 0, l = input.outputs.length; i < l; i++) {
-      let imgType = fileType(input.outputs[i].buffer);
+      let imgType = utils.mime(input.outputs[i].buffer);
       if (imgType !== 'image/webp') {
         let webpOutput = Object.assign({}, input.outputs[i], {
-          filename: path.basename(input.outputs[i].filename, path.extname(input.outputs[i].filename)) + '.webp',
+          filename: utils.base(input.outputs[i].filename) + '.webp',
           toConvert: true
         });
         if (opts.replaceFile) {

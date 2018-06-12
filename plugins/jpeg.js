@@ -1,11 +1,10 @@
-const fileType = require('file-type');
 const sharp = require('sharp');
 
 const jpeg = (opts={}) => {
   const quality = typeof opts.quality !== 'undefined' ? Math.max(1, Math.min(parseInt(opts.quality), 100)) : 80;
   const progressive = typeof opts.progressive !== 'undefined' ? opts.progressive : true;
 
-  return function jpeg(input, fulfill) {
+  return function jpeg(input, fulfill, utils) {
     let finish = -input.outputs.length + 1;
     const next = () => {
       finish++;
@@ -16,7 +15,10 @@ const jpeg = (opts={}) => {
 
     finish = -input.outputs.length + 1;
     for (let i in input.outputs) {
-      if (fileType(input.outputs[i].buffer).mime === 'image/jpeg') {
+      if (utils.mime(input.outputs[i].buffer) === 'image/jpeg') {
+        if (typeof opts.forceExt === 'string') {
+          input.outputs[i].filename = utils.base(input.outputs[i].filename) + '.' + opts.forceExt;
+        }
         sharp(input.outputs[i].buffer)
           .jpeg({
             quality,
