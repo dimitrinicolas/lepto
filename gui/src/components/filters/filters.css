@@ -1,0 +1,112 @@
+.filters {
+  margin-y: 30px;
+}
+
+.filters__item {
+  position: relative;
+  margin-bottom: 40px;
+  padding: 5px 15px;
+  border-left: 1px solid color(black lightness(+20%));
+}
+.filters__item .filters__item {
+  margin-left: 20px;
+}
+.filters__item .filters__item:first-of-type {
+  margin-top: 12px;
+}
+
+.filters__item .title {
+  color: white;
+}
+.filters__item[tabindex] {
+  cursor: pointer;
+}
+.filters__item.filters__item--selected .title,
+.filters__item[tabindex]:focus .title,
+.filters__item[tabindex]:hover .title {
+  color: $yellow;
+}
+.filters__item.filters__item--selected {
+  border-left-color: $yellow;
+}
+
+.filters__item:focus {
+  outline: none;
+}
+.filters__item:focus::after {
+  content: "";
+  position: absolute 0 0 0 9px;
+  box-shadow: 0 0 0 3px color($primary lightness(+35%)),
+    0 0 0 1.5px color($primary lightness(+35%));
+}
+.js-focus-visible .filters__item:focus:not(.focus-visible)::after {
+  box-shadow: none;
+}
+
+.filters__use {
+  margin-left: 20px;
+  margin-y: 10px;
+}
+.filters__use::before,
+.filters__use::after {
+  display: block;
+  margin-left: -20px;
+}
+.filters__use::before {
+  content: "use: [";
+}
+.filters__use::after {
+  content: "]";
+}
+
+.filters__use__item {
+  margin-y: 10px;
+}
+.filters__use__item input {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+
+.filters__globs {
+  display: flex;
+}
+.filters__globs__title {
+  margin-right: 10px;
+}
+.filters__globs__content {
+  flex: 1;
+  margin: -4px -4px -4px 0;
+  padding: 4px;
+  font-size: 16px;
+}
+.filters__globs__content:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color($primary lightness(+35%)),
+    0 0 0 1.5px color($primary lightness(+35%));
+}
+
+
+
+.filters__use__data {
+  position: relative;
+  margin: -4px -4px -4px 0;
+  padding: 4px 4px 4px 20px;
+  transition: .08s;
+}
+.filters__use__data::before,
+.filters__use__data::after {
+  display: block;
+  margin-left: -15px;
+}
+.filters__use__data::before {
+  content: "{";
+}
+.filters__use__data::after {
+  content: "}";
+}
+.filters__use__data:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color($primary lightness(+35%)),
+    0 0 0 1.5px color($primary lightness(+35%));
+}

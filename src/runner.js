@@ -1,5 +1,6 @@
 const chokidar = require('chokidar');
 const deepDiff = require('deep-object-diff');
+const dirTree = require('directory-tree');
 const fastGlob = require('fast-glob');
 const fileType = require('file-type');
 const fs = require('fs');
@@ -7,17 +8,21 @@ const fse = require('fs-extra');
 const path = require('path');
 
 const defaultConfig = require('./default-config.js');
-const filters = require('./filters.js');
 const events = require('./events.js');
+const filters = require('./filters.js');
+const gui = require('./gui.js');
 const pipe = require('./pipe.js');
 const saveData = require('./save-data.js');
 
 class Runner {
   constructor(config={}, params={}) {
+    this._extensions = /\.(jpg|jpeg|png|gif|svg|tiff|bmp|webp)/;
+    this.unlinkFollowers = {};
     this.cli = params.cli ? true : false;;
     this.cliConfig = typeof params.cliConfig !== 'undefined' ? params.cliConfig : {};
     const configSet = this.setConfig(config);
     if (configSet.success) {
+      gui.init();
       if (this.config.processAll) {
         this.processAll();
       }
@@ -49,6 +54,7 @@ class Runner {
     }
 
     this.config = config;
+    this.updateGUIConfig(this.config);
 
     this.filtersList = filters.generate(path.resolve(this.config.input), this.config.filters);
     this.globAllInput = path.resolve(this.config.input) + '/**/*.*';
@@ -114,6 +120,7 @@ class Runner {
     if (event === 'unlink' && this.config.followUnlink) {
       this.unlink(filePath);
     }
+    this.updateGUITree();
   }
 
   processList(list, event) {
@@ -209,6 +216,7 @@ class Runner {
                   outputFiles.push(`${output.dir === '.' ? '' : output.dir + '/'}${output.filename}`);
                   outputSizes.push(output.buffer.length);
                 }
+                this.unlinkFollowers[path.resolve(process.cwd(), this.config.input, res.input)] = outputFiles.map(output => path.resolve(process.cwd(), this.config.output, output));
                 events.dispatch('processed-file', {
                   adj,
                   input: relativePath,
@@ -234,12 +242,32 @@ class Runner {
     }
   }
 
+  updateGUIConfig() {
+    gui.configUpdate(this.config);
+  }
+
+  relativeTree(tree) {
+    return Object.assign({}, tree, {
+      path: path.relative(this.config.input, tree.path),
+      children: tree.children ? tree.children.map(child => this.relativeTree(child)) : []
+    })
+  }
+
+  updateGUITree() {
+    const tree = this.relativeTree(dirTree(path.resolve(this.config.input), {
+      extensions: this._extensions
+    }));
+    gui.treeUpdate(tree.children);
+  }
+
   processAll() {
     fastGlob(this.globAllInput, {
       ignore: [this.globAllOutput]
     }).then((entries) => {
+      this.currentTree = entries;
       this.processList(entries);
-    })
+    });
+    this.updateGUITree();
   }
 
   unlink(filePath) {
@@ -250,16 +278,22 @@ class Runner {
       }
       saveData(path.resolve(process.cwd(), this.config.dataOutput), inputName, null);
     }
-    fse.remove(filePath, err => {
-      if (err) {
-        events.dispatch('error', `Unable to follow unlink of ${filePath}`);
+    if (Array.isArray(this.unlinkFollowers[filePath])) {
+      for (let output of this.unlinkFollowers[filePath]) {
+        fse.remove(output, function(output) {
+          return (err) => {
+            if (err) {
+              events.dispatch('error', `Unable to follow unlink of ${output}`);
+            }
+            else {
+              events.dispatch('success', {
+                msg: `Removed ${output}`
+              });
+            }
+          };
+        }(output));
       }
-      else {
-        events.dispatch('success', {
-          msg: `Removed ${filePath}`
-        });
-      }
-    });
+    }
   }
 
   on(name, func) {

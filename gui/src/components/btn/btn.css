@@ -1,0 +1,40 @@
+.btn {
+
+  display: inline-block;
+
+  margin: 2px 0;
+  padding: 0.5em 1em;
+
+  text-align: center;
+  text-decoration: none;
+  color: white;
+
+  cursor: pointer;
+  background-color: $primary;
+  border-radius: 4px;
+  outline: none;
+  transition: .1s;
+
+}
+.btn::-moz-focus-inner {
+  border: none;
+}
+.btn:focus,
+.btn:hover {
+  color: white;
+  background-color: color($primary lightness(+10%));
+}
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color($primary lightness(+35%)),
+    0 0 0 1.5px color($primary lightness(+35%));
+}
+.btn:active,
+.btn:focus:active,
+.btn:hover:active {
+  color: white;
+  background-color: $primary;
+}
+.js-focus-visible .btn:focus:not(.focus-visible) {
+  box-shadow: none;
+}

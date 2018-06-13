@@ -1,16 +1,3 @@
-const cli = {
-  input: null,
-  output: null,
-  watch: true,
-  watchConfig: false,
-  followUnlink: false,
-  logLevel: 'all',
-  dataOutput: null,
-  processAll: true,
-  use: [],
-  filters: []
-};
-
 const main = {
   input: null,
   output: null,
@@ -19,9 +6,13 @@ const main = {
   followUnlink: false,
   logLevel: 'all',
   dataOutput: null,
+  dataRootPath: null,
   processAll: true,
-  use: [],
   filters: []
 };
+
+const cli = Object.assign({}, main, {
+  watch: true
+});
 
 module.exports = { main, cli };

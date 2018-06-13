@@ -1,0 +1,43 @@
+.tree {
+  margin-y: 30px;
+}
+
+.tree__item {
+  position: relative;
+  padding: 5px 15px;
+  border-left: 1px solid color(black lightness(+20%));
+}
+.tree__item .tree__item {
+  margin-left: 20px;
+}
+.tree__item .tree__item:first-of-type {
+  margin-top: 12px;
+}
+
+.tree__item .title {
+  color: color(white blackness(+30%));
+}
+.tree__item[tabindex] {
+  cursor: pointer;
+}
+.tree__item.tree__item--selected .title,
+.tree__item[tabindex]:focus .title,
+.tree__item[tabindex]:hover .title {
+  color: $yellow;
+}
+.tree__item.tree__item--selected {
+  border-left-color: $yellow;
+}
+
+.tree__item:focus {
+  outline: none;
+}
+.tree__item:focus::after {
+  content: "";
+  position: absolute 0 0 0 9px;
+  box-shadow: 0 0 0 3px color($primary lightness(+35%)),
+    0 0 0 1.5px color($primary lightness(+35%));
+}
+.js-focus-visible .tree__item:focus:not(.focus-visible)::after {
+  box-shadow: none;
+}

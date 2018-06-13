@@ -1,0 +1,25 @@
+button {
+  padding: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  cursor: pointer;
+  outline: none;
+}
+button::-moz-focus-inner {
+  border: none;
+}
+button:focus {
+  box-shadow: 0 0 0 3px color($primary lightness(+25%)),
+    0 0 0 1.5px color($primary lightness(+25%));
+}
+.js-focus-visible button:focus:not(.focus-visible) {
+  box-shadow: none;
+}
+
+.shortcut {
+  display: inline-block;
+  font-size: 14px;
+  transform: translateY(1px);
+}

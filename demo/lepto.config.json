@@ -31,21 +31,21 @@
       ]
     },
     {
-      "glob": ["**/*.{jpg,jpeg}"],
+      "glob": ["**/*.{jpg,jpeg}", "**/*.yo"],
       "use": [
         {
           "name": "../lepto-resize",
           "maxWidth": 1200
         },
         {
-          "name": "lepto.webp",
+          "name": "../lepto-webp",
           "quality": 80
         },
         "../lepto-vibrant-color"
       ]
     },
     {
-      "glob": "**/*.pnga",
+      "glob": "**/*.png",
       "use": [
         {
           "name": "../lepto-resize",
