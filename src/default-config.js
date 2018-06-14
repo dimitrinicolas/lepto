@@ -4,13 +4,13 @@ const main = {
   watch: false,
   watchConfig: false,
   followUnlink: false,
+  processAll: true,
   gui: true,
   openGui: false,
   guiPort: '4490',
   logLevel: 'all',
   dataOutput: null,
   dataRootPath: null,
-  processAll: true,
   filters: []
 };
 

@@ -5,7 +5,7 @@
   "watchConfig": true,
   "followUnlink": true,
   "gui": true,
-  "openGui": true,
+  "openGui_": true,
   "dataOutput": "demo/output/data.json",
   "filters": [
     {
@@ -78,6 +78,15 @@
         {
           "name": "lepto.jpeg",
           "quality": 16
+        }
+      ]
+    },
+    {
+      "glob": "midi-controller-css.gif",
+      "use": [
+        {
+          "name": "lepto.gif",
+          "colors": 255
         }
       ]
     }

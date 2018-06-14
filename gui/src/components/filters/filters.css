@@ -43,6 +43,68 @@
   box-shadow: none;
 }
 
+
+.filters__move {
+  position: absolute 0 auto auto -32px;
+}
+.filters__move__up,
+.filters__move__cross,
+.filters__move__down {
+  position: relative;
+  display: block;
+  size: 25px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.filters__move__up:focus,
+.filters__move__cross:focus,
+.filters__move__down:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color($primary lightness(+35%)),
+    0 0 0 1.5px color($primary lightness(+35%));
+}
+.js-focus-visible .filters__move__up:focus:not(.focus-visible),
+.js-focus-visible .filters__move__cross:focus:not(.focus-visible),
+.js-focus-visible .filters__move__down:focus:not(.focus-visible) {
+  box-shadow: none;
+}
+.filters__move__up::before,
+.filters__move__up::after,
+.filters__move__down::before,
+.filters__move__down::after {
+  position: absolute 50% auto auto 50%;
+  content: "";
+  display: block;
+  size: 12px 2px;
+  background: white;
+}
+.filters__move__up::before,
+.filters__move__down::before {
+  transform: translateX(-50%) translateX(-3px) rotate(-45deg);
+}
+.filters__move__up::after,
+.filters__move__down::after {
+  transform: translateX(-50%) translateX(4px) rotate(45deg);
+}
+.filters__move__down {
+  transform: translateX(-1px) scaleY(-1);
+}
+.filters__move__cross::before,
+.filters__move__cross::after {
+  position: absolute 50% auto auto 50%;
+  content: "";
+  display: block;
+  size: 12px 2px;
+  background: white;
+}
+.filters__move__cross::before {
+  transform: translateY(-2px) translateX(-50%) rotate(-45deg);
+}
+.filters__move__cross::after {
+  transform: translateY(-2px) translateX(-50%) rotate(45deg);
+}
+
+
 .filters__use {
   margin-left: 20px;
   margin-y: 10px;
@@ -89,7 +151,6 @@
 }
 
 
-
 .filters__use__data {
   position: relative;
   margin: -4px -4px -4px 0;
@@ -118,4 +179,38 @@
 .filters__use__data.--error:focus {
   box-shadow: 0 0 0 3px $red,
     0 0 0 1.5px $red;
+}
+
+
+.filters__use__cross {
+  position: relative;
+  display: inline-block;
+  size: 25px;
+  margin-bottom: -8px;
+  margin-left: -10px;
+  margin-right: 0;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.filters__use__cross::before,
+.filters__use__cross::after {
+  content: "";
+  position: absolute;
+  size: 15px 2px;
+  background: white;
+  transform-origin: center center;
+}
+.filters__use__cross::before {
+  transform: translateX(4px) translateY(11px) rotate(-45deg);
+}
+.filters__use__cross::after {
+  transform: translateX(4px) translateY(11px) rotate(45deg);
+}
+.filters__use__cross:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color($primary lightness(+35%)),
+    0 0 0 1.5px color($primary lightness(+35%));
+}
+.js-focus-visible .filters__use__cross:focus:not(.focus-visible) {
+  box-shadow: none;
 }

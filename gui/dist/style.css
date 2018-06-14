@@ -123,6 +123,25 @@ body {
   -webkit-transform: translateY(1px);
           transform: translateY(1px);
 }
+.btn--invisible {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  margin-left: -5px;
+  margin-right: -5px;
+  color: rgb(143, 156, 255);
+}
+.btn--invisible,
+.btn.btn--invisible:not(.btn--disabled):focus,
+.btn.btn--invisible:not(.btn--disabled):hover {
+  background: transparent;
+}
+.btn.btn--invisible:not(.btn--disabled):focus,
+.btn.btn--invisible:not(.btn--disabled):hover {
+  color: rgb(245, 246, 255);
+}
+.btn.btn--invisible:not(.btn--disabled):active {
+  color: rgb(117, 133, 255);
+}
 .filters {
   margin-top: 30px;
   margin-bottom: 30px;
@@ -168,6 +187,85 @@ body {
 }
 .js-focus-visible .filters__item:focus:not(.focus-visible)::after {
   box-shadow: none;
+}
+.filters__move {
+  position: absolute;
+  top: 0;
+  right: auto;
+  bottom: auto;
+  left: -32px;
+}
+.filters__move__up,
+.filters__move__cross,
+.filters__move__down {
+  position: relative;
+  display: block;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.filters__move__up:focus,
+.filters__move__cross:focus,
+.filters__move__down:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(168, 178, 255),
+    0 0 0 1.5px rgb(168, 178, 255);
+}
+.js-focus-visible .filters__move__up:focus:not(.focus-visible),
+.js-focus-visible .filters__move__cross:focus:not(.focus-visible),
+.js-focus-visible .filters__move__down:focus:not(.focus-visible) {
+  box-shadow: none;
+}
+.filters__move__up::before,
+.filters__move__up::after,
+.filters__move__down::before,
+.filters__move__down::after {
+  position: absolute;
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  content: "";
+  display: block;
+  width: 12px;
+  height: 2px;
+  background: white;
+}
+.filters__move__up::before,
+.filters__move__down::before {
+  -webkit-transform: translateX(-50%) translateX(-3px) rotate(-45deg);
+          transform: translateX(-50%) translateX(-3px) rotate(-45deg);
+}
+.filters__move__up::after,
+.filters__move__down::after {
+  -webkit-transform: translateX(-50%) translateX(4px) rotate(45deg);
+          transform: translateX(-50%) translateX(4px) rotate(45deg);
+}
+.filters__move__down {
+  -webkit-transform: translateX(-1px) scaleY(-1);
+          transform: translateX(-1px) scaleY(-1);
+}
+.filters__move__cross::before,
+.filters__move__cross::after {
+  position: absolute;
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  content: "";
+  display: block;
+  width: 12px;
+  height: 2px;
+  background: white;
+}
+.filters__move__cross::before {
+  -webkit-transform: translateY(-2px) translateX(-50%) rotate(-45deg);
+          transform: translateY(-2px) translateX(-50%) rotate(-45deg);
+}
+.filters__move__cross::after {
+  -webkit-transform: translateY(-2px) translateX(-50%) rotate(45deg);
+          transform: translateY(-2px) translateX(-50%) rotate(45deg);
 }
 .filters__use {
   margin-left: 20px;
@@ -240,6 +338,43 @@ body {
 .filters__use__data.--error:focus {
   box-shadow: 0 0 0 3px #f44336,
     0 0 0 1.5px #f44336;
+}
+.filters__use__cross {
+  position: relative;
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  margin-bottom: -8px;
+  margin-left: -10px;
+  margin-right: 0;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.filters__use__cross::before,
+.filters__use__cross::after {
+  content: "";
+  position: absolute;
+  width: 15px;
+  height: 2px;
+  background: white;
+  -webkit-transform-origin: center center;
+          transform-origin: center center;
+}
+.filters__use__cross::before {
+  -webkit-transform: translateX(4px) translateY(11px) rotate(-45deg);
+          transform: translateX(4px) translateY(11px) rotate(-45deg);
+}
+.filters__use__cross::after {
+  -webkit-transform: translateX(4px) translateY(11px) rotate(45deg);
+          transform: translateX(4px) translateY(11px) rotate(45deg);
+}
+.filters__use__cross:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(168, 178, 255),
+    0 0 0 1.5px rgb(168, 178, 255);
+}
+.js-focus-visible .filters__use__cross:focus:not(.focus-visible) {
+  box-shadow: none;
 }
 .img {
   position: relative;
@@ -502,6 +637,15 @@ h5.title {
   margin-bottom: 20px;
   font-weight: 500;
   font-size: 1.125rem;
+}
+.size-diff {
+  margin-right: 20px;
+}
+.loader {
+  width: 16px;
+  height: 16px;
+  -webkit-transform: translateY(5px);
+          transform: translateY(5px);
 }
 @media (max-width: 1632px) {
 	.img {

@@ -3,9 +3,12 @@ const fileType = require('file-type');
 const http = require('http');
 const path = require('path');
 const socketIO = require('socket.io');
+const opn = require('opn');
 
-const pipe = require('./pipe.js');
+const beautifier = require('./beautifier.js');
+const events = require('./events.js');
 const nativePlugins = require('../plugins');
+const pipe = require('./pipe.js');
 
 let io;
 let currentConfig = {};
@@ -29,7 +32,7 @@ const dispatch = (name, data) => {
   }
 };
 
-const init = (port) => {
+const init = (port, opts={}) => {
   io = socketIO(parseInt(port) + 1);
 
 	io.on('connection', function(socket) {
@@ -66,7 +69,7 @@ const init = (port) => {
       let q = null;
       if (filepath.lastIndexOf('?q=') !== -1) {
         filename = filepath.substring(0, filepath.lastIndexOf('?q='));
-        q = parseInt(filepath.substring(filepath.lastIndexOf('?q=') + 3, filepath.length));
+        q = parseInt(filepath.substring(filepath.lastIndexOf('?q=') + 3, filepath.lastIndexOf('&')));
       }
       filepath = path.resolve(process.cwd(), currentConfig.input, filename);
 			const template = fs.readFileSync(filepath);
@@ -80,10 +83,14 @@ const init = (port) => {
           });
         }
         else if (ext === 'png') {
-
+          plugin = nativePlugins.png({
+            quality: q
+          });
         }
         else if (ext === 'gif') {
-
+          plugin = nativePlugins.gif({
+            colors: q
+          });
         }
         if (plugin) {
           pipe({
@@ -103,6 +110,7 @@ const init = (port) => {
         			response.end();
             }
             else {
+              io.emit('size-diff', beautifier.bytes(template.length) + ' > ' + beautifier.bytes(res.outputs[0].buffer.length));
               response.writeHeader(200, { 'Content-Type': type.mime || 'image/jpg' });
         			response.write(res.outputs[0].buffer);
         			response.end();
@@ -125,6 +133,13 @@ const init = (port) => {
 			response.end();
 		}
 	}).listen(port);
+  if (opts.openGui) {
+    events.dispatch('info', {
+      msg: `GUI at the address http://localhost:${port}`,
+      color: 'lightblue'
+    });
+    opn('http://localhost:' + port);
+  }
 };
 
 const configUpdate = (newConfig) => {

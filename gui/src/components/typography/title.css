@@ -24,3 +24,12 @@ h5.title {
   font-weight: 500;
   font-size: 18px;
 }
+
+.size-diff {
+  margin-right: 20px;
+}
+
+.loader {
+  size: 16px;
+  transform: translateY(5px);
+}

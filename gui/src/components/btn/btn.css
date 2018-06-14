@@ -49,3 +49,21 @@
   display: inline-block;
   transform: translateY(1px);
 }
+
+.btn--invisible {
+  margin-y: 4px;
+  margin-x: -5px;
+  color: color($primary lightness(+30%));
+}
+.btn--invisible,
+.btn.btn--invisible:not(.btn--disabled):focus,
+.btn.btn--invisible:not(.btn--disabled):hover {
+  background: transparent;
+}
+.btn.btn--invisible:not(.btn--disabled):focus,
+.btn.btn--invisible:not(.btn--disabled):hover {
+  color: color($primary lightness(+50%));
+}
+.btn.btn--invisible:not(.btn--disabled):active {
+  color: color($primary lightness(+25%));
+}

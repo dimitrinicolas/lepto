@@ -25,7 +25,9 @@ class Runner {
     if (configSet.success) {
       if (this.config.gui) {
         if (this.cli && path.extname(this.configFile) === '.json') {
-          gui.init(this.config.guiPort);
+          gui.init(this.config.guiPort, {
+            openGui: this.config.openGui
+          });
           this.updateGUIConfig();
           gui.on('config-update', (config) => {
             const normalizedConfig = this.normalizeConfig(config);

@@ -1,10 +1,10 @@
 const PngQuant = require('pngquant');
 
 const png = (opts={}) => {
-  const ncolors = typeof opts.ncolors !== 'undefined' ? opts.ncolors : 256;
+  const colors = typeof opts.colors !== 'undefined' ? Math.max(2, Math.min(parseInt(opts.colors), 256)) : 256;
   const quality = typeof opts.quality !== 'undefined' ? opts.quality : '70-80';
   const speed = typeof opts.speed !== 'undefined' ? opts.speed : 3;
-  const args = [ncolors, '--nofs', '--quality', quality, '--speed', speed];
+  const args = [colors, '--nofs', '--quality', quality, '--speed', speed];
 
   return function png(input, fulfill, utils) {
     let finish = -input.outputs.length + 1;

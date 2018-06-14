@@ -8,6 +8,7 @@ let currentTree;
 let configInputEl;
 let configOutputEl;
 let saveConfigBtn;
+let addFilterBtn;
 let treeEl;
 let filtersEl;
 let selectedFileEl;
@@ -69,7 +70,7 @@ const pluginPropsListener = (globId, pluginId) => {
       }, data);
     }
   }
-}
+};
 
 const generatePluginDiv = (data, globId, pluginId) => {
   let plugin;
@@ -86,12 +87,21 @@ const generatePluginDiv = (data, globId, pluginId) => {
   }
   const div = document.createElement('div');
   div.className = 'filters__use__item';
+
+  const useCross = document.createElement('span');
+  useCross.tabIndex = 0;
+  useCross.className = 'filters__use__cross';
+  useCross.addEventListener('click', pluginRemoveEvent(globId, pluginId))
+  useCross.addEventListener('keypress', pluginRemoveEvent(globId, pluginId))
+  div.appendChild(useCross);
+
   const input = document.createElement('input');
   input.value = plugin.name;
   input.setAttribute('spellcheck', false);
   input.addEventListener('keyup', pluginNameListener(globId, pluginId))
   input.addEventListener('keypress', pluginNameListener(globId, pluginId))
   div.appendChild(input);
+
   delete plugin.name;
   const pre = document.createElement('pre');
   preventPre(pre);
@@ -107,6 +117,7 @@ const generatePluginDiv = (data, globId, pluginId) => {
     pre.innerHTML = content;
   }
   div.appendChild(pre);
+
   return div;
 };
 
@@ -120,6 +131,80 @@ const globPreListener = (globId) => {
   }
 };
 
+const globRemoveEvent = (globId) => {
+  return (event) => {
+    let click;
+    if (event.type === 'keypress') {
+      if (event.keyCode === 13) {
+        click = true;
+      }
+    }
+    else {
+      click = true;
+    }
+    if (click) {
+      currentConfig.filters.splice(globId, 1);
+      updateConfigDOM();
+    }
+  };
+};
+
+const globMoveEvent = (globId, move) => {
+  return (event) => {
+    let click;
+    if (event.type === 'keypress') {
+      if (event.keyCode === 13) {
+        click = true;
+      }
+    }
+    else {
+      click = true;
+    }
+    if (click) {
+      currentConfig.filters.splice(globId + move, 0, currentConfig.filters.splice(globId, 1)[0]);
+      updateConfigDOM();
+    }
+  };
+};
+
+const addPluginEvent = (globId) => {
+  return (event) => {
+    let click;
+    if (event.type === 'keypress') {
+      if (event.keyCode === 13) {
+        click = true;
+      }
+    }
+    else {
+      click = true;
+    }
+    if (click) {
+      currentConfig.filters[globId].use.push({
+        name: ''
+      });
+      updateConfigDOM();
+    }
+  };
+};
+
+const pluginRemoveEvent = (globId, pluginId) => {
+  return (event) => {
+    let click;
+    if (event.type === 'keypress') {
+      if (event.keyCode === 13) {
+        click = true;
+      }
+    }
+    else {
+      click = true;
+    }
+    if (click) {
+      currentConfig.filters[globId].use.splice(pluginId, 1);
+      updateConfigDOM();
+    }
+  };
+};
+
 const updateConfigDOM = () => {
   configInputEl.value = currentConfig.input;
   configOutputEl.value = currentConfig.output;
@@ -131,23 +216,56 @@ const updateConfigDOM = () => {
   });
   filtersEl.innerHTML = '';
   for (let i in currentConfig.filters) {
+    i = parseInt(i);
     let item = currentConfig.filters[i];
     const div = document.createElement('div');
     div.className = 'filters__item';
 
+    const moveDiv = document.createElement('div');
+    moveDiv.className = 'filters__move';
+
+    if (i !== 0) {
+      const moveUp = document.createElement('div');
+      moveUp.tabIndex = 0;
+      moveUp.className = 'filters__move__up';
+      moveUp.addEventListener('click', globMoveEvent(i, -1));
+      moveUp.addEventListener('keypress', globMoveEvent(i, -1));
+      moveDiv.appendChild(moveUp);
+    }
+
+    const moveCross = document.createElement('div');
+    moveCross.tabIndex = 0;
+    moveCross.className = 'filters__move__cross';
+    moveCross.addEventListener('click', globRemoveEvent(i));
+    moveCross.addEventListener('keypress', globRemoveEvent(i));
+    moveDiv.appendChild(moveCross);
+
+    if (i !== currentConfig.filters[i].length) {
+      const moveDown = document.createElement('div');
+      moveDown.tabIndex = 0;
+      moveDown.className = 'filters__move__down';
+      moveDown.addEventListener('click', globMoveEvent(i, 1));
+      moveDown.addEventListener('keypress', globMoveEvent(i, 1));
+      moveDiv.appendChild(moveDown);
+    }
+
+    div.appendChild(moveDiv);
+
     const globsDiv = document.createElement('div');
     globsDiv.className = 'filters__globs';
+
     const globsDivTitle = document.createElement('div');
     globsDivTitle.className = 'filters__globs__title';
     globsDivTitle.innerHTML = 'globs:';
     globsDiv.appendChild(globsDivTitle);
+
     const globsDivContent = document.createElement('pre');
     preventPre(globsDivContent);
     globsDivContent.className = 'filters__globs__content';
     globsDivContent.setAttribute('contenteditable', true);
     globsDivContent.setAttribute('spellcheck', false);
-    globsDivContent.addEventListener('keyup', globPreListener(i))
-    globsDivContent.addEventListener('keypress', globPreListener(i))
+    globsDivContent.addEventListener('keyup', globPreListener(i));
+    globsDivContent.addEventListener('keypress', globPreListener(i));
     if (Array.isArray(item.glob)) {
       globsDivContent.innerHTML = item.glob.join('\n');
     }
@@ -155,6 +273,7 @@ const updateConfigDOM = () => {
       globsDivContent.innerHTML = item.glob;
     }
     globsDiv.appendChild(globsDivContent);
+
     div.appendChild(globsDiv);
 
     const useDiv = document.createElement('div');
@@ -162,6 +281,14 @@ const updateConfigDOM = () => {
     for (let j in item.use) {
       useDiv.appendChild(generatePluginDiv(item.use[j], i, j));
     }
+
+    const addPlugin = document.createElement('button');
+    addPlugin.className = 'btn btn--invisible';
+    addPlugin.innerHTML = 'Add a plugin';
+    addPlugin.addEventListener('click', addPluginEvent(i));
+    addPlugin.addEventListener('keypress', addPluginEvent(i));
+    useDiv.appendChild(addPlugin);
+
     div.appendChild(useDiv);
 
     filtersEl.appendChild(div);
@@ -178,7 +305,16 @@ const deepTreeDive = (tree, ids) => {
 };
 
 const setQuality = (q, img, src) => {
-  img.src = src + '?q=' + q;
+  const sizeDiffEl = document.getElementById('sizeDiff');
+  console.log(sizeDiffEl);
+  if (sizeDiffEl) {
+    sizeDiffEl.innerHTML = '';
+    const gif = document.createElement('img');
+    gif.className = 'loader';
+    gif.src = 'data:image/gif;base64,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';
+    sizeDiffEl.appendChild(gif);
+  }
+  img.src = src + '?q=' + q + '&' + Math.random();
 };
 
 let currentMagnifier;
@@ -210,27 +346,43 @@ const addOptimPlugin = () => {
       });
     }
     else if (ext === 'png') {
-
+      currentConfig.filters.push({
+        glob: file.path,
+        use: [
+          {
+            name: 'lepto.png',
+            quality: parseInt(document.getElementById('q-range').value)
+          }
+        ]
+      });
     }
     else if (ext === 'gif') {
-
+      currentConfig.filters.push({
+        glob: file.path,
+        use: [
+          {
+            name: 'lepto.gif',
+            colors: parseInt(document.getElementById('q-range').value)
+          }
+        ]
+      });
     }
   }
   updateConfigDOM();
   smoothScroll(0, 300);
-}
+};
 
 const handleOptimBtnEvent = (event) => {
+  let click;
   if (event.type === 'keypress') {
     if (event.keyCode === 13) {
-      addOptimPlugin();
-      event.target.classList.add('btn--disabled');
-      setTimeout(() => {
-        event.target.classList.remove('btn--disabled');
-      }, 1000);
+      click = true;
     }
   }
   else {
+    click = true;
+  }
+  if (click) {
     addOptimPlugin();
     event.target.classList.add('btn--disabled');
     setTimeout(() => {
@@ -251,18 +403,18 @@ const handleFileFocus = (id) => {
     title.className = 'title';
     title.innerHTML = file.name;
     selectedFileEl.appendChild(title);
+
     const span = document.createElement('span');
     span.innerHTML = 'Quality: ';
     selectedFileEl.appendChild(span);
 
     const valueEl = document.createElement('span');
-    span.appendChild(valueEl);
 
-    let slider = document.createElement('input');
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.className = 'range';
+    slider.id = 'q-range';
     if (ext === 'jpg' || ext === 'jpeg') {
-      slider.type = 'range';
-      slider.id = 'q-range';
-      slider.className = 'range';
       slider.min = 1;
       slider.max = 100;
       slider.value = 80;
@@ -270,11 +422,27 @@ const handleFileFocus = (id) => {
       selectedFileEl.appendChild(slider);
     }
     else if (ext === 'png') {
-
+      slider.min = 0;
+      slider.max = 100;
+      slider.value = 80;
+      valueEl.innerHTML = slider.value;
+      selectedFileEl.appendChild(slider);
     }
     else if (ext === 'gif') {
-
+      span.innerHTML = 'Colors: ';
+      slider.min = 2;
+      slider.max = 256;
+      slider.value = 256;
+      valueEl.innerHTML = slider.value;
+      selectedFileEl.appendChild(slider);
     }
+
+    span.appendChild(valueEl);
+
+    const sizeDiffEl = document.createElement('span');
+    sizeDiffEl.id = 'sizeDiff';
+    sizeDiffEl.className = 'size-diff';
+    selectedFileEl.appendChild(sizeDiffEl);
 
     const btn = document.createElement('button');
     btn.className = 'btn';
@@ -311,7 +479,20 @@ const handleFileFocus = (id) => {
       }
     }
   }
-}
+};
+
+const handleFileEvent = (id) => {
+  return (event) => {
+    if (event.type === 'keypress') {
+      if (event.keyCode === 13) {
+        handleFileFocus(id);
+      }
+    }
+    else {
+      handleFileFocus(id);
+    }
+  };
+};
 
 const treeItem = (tree, parent='') => {
   const res = [];
@@ -322,7 +503,8 @@ const treeItem = (tree, parent='') => {
     div.setAttribute('data-file-id', parent + i);
     if (item.type === 'file') {
       div.tabIndex = 0;
-      div.addEventListener('click', handleFileFocus.bind(null, parent + i));
+      div.addEventListener('click', handleFileEvent(parent + i));
+      div.addEventListener('keypress', handleFileEvent(parent + i));
     }
     const title = document.createElement('h3');
     title.className = 'title';
@@ -367,16 +549,38 @@ const handleSaveBtnEvent = (event) => {
   }
 };
 
+const addFilterEvent = (event) => {
+  let click;
+  if (event.type === 'keypress') {
+    if (event.keyCode === 13) {
+      click = true;
+    }
+  }
+  else {
+    click = true;
+  }
+  if (click) {
+    currentConfig.filters.push({
+      glob: ''
+    });
+    updateConfigDOM();
+  }
+};
+
 const onload = () => {
   configInputEl = document.getElementById('config.input');
   configOutputEl = document.getElementById('config.output');
-  saveConfigBtn = document.getElementById('save-config-btn');
+  saveConfigBtn = document.getElementById('saveConfigBtn');
+  addFilterBtn = document.getElementById('addFilterBtn');
   treeEl = document.querySelector('.tree');
   filtersEl = document.querySelector('.filters');
   selectedFileEl = document.getElementById('selectedFile');
 
   saveConfigBtn.addEventListener('click', handleSaveBtnEvent);
   saveConfigBtn.addEventListener('keypress', handleSaveBtnEvent);
+
+  addFilterBtn.addEventListener('click', addFilterEvent);
+  addFilterBtn.addEventListener('keypress', addFilterEvent);
 
   const socketScript = document.createElement('script');
 	socketScript.onload = function() {
@@ -390,6 +594,12 @@ const onload = () => {
     socket.on('tree-update', (tree) => {
       currentTree = tree;
       updateTreeDOM();
+    });
+    socket.on('size-diff', (str) => {
+      const el = document.getElementById('sizeDiff');
+      if (el) {
+        el.innerHTML = str;
+      }
     });
     socket.on('update-finish', () => {
       if (disabledTimeout) {
