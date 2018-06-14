@@ -19,22 +19,33 @@
 .btn::-moz-focus-inner {
   border: none;
 }
-.btn:focus,
-.btn:hover {
+.btn:not(.btn--disabled):focus,
+.btn:not(.btn--disabled):hover {
   color: white;
   background-color: color($primary lightness(+10%));
 }
-.btn:focus {
+.btn:not(.btn--disabled):focus {
   outline: none;
   box-shadow: 0 0 0 3px color($primary lightness(+35%)),
     0 0 0 1.5px color($primary lightness(+35%));
 }
-.btn:active,
-.btn:focus:active,
-.btn:hover:active {
+.btn:not(.btn--disabled):active,
+.btn:not(.btn--disabled):focus:active,
+.btn:not(.btn--disabled):hover:active {
   color: white;
   background-color: $primary;
 }
-.js-focus-visible .btn:focus:not(.focus-visible) {
+.js-focus-visible .btn:not(.btn--disabled):focus:not(.focus-visible) {
   box-shadow: none;
+}
+
+.btn.btn--disabled {
+  background: $light-grey;
+  color: color($grey blackness(+30%));
+  cursor: default;
+}
+
+.btn__cmd {
+  display: inline-block;
+  transform: translateY(1px);
 }

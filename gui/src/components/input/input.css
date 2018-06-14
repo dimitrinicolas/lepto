@@ -1,0 +1,54 @@
+input:not(.range) {
+  padding: 7px 8px;
+  font: mono regular 15px;
+  color: white;
+  background: black;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  border-bottom: 1px solid color(black lightness(+20%));
+  transition: .08s;
+}
+input:not(.range)::-moz-focus-inner {
+  border: none;
+}
+input:not(.range):focus {
+  outline: none;
+  box-shadow: 0 0 0 2.5px color($primary lightness(+35%)),
+    0 0 0 1.5px color($primary lightness(+35%));
+}
+.js-focus-visible input:not(.range):focus:not(.focus-visible) {
+  box-shadow: none;
+}
+
+.range {
+  display: inline-block;
+  margin-x: 20px;
+  width: 250px;
+  background: color(black lightness(+15%));
+  border-radius: 9px;
+  transform: translateY(5px);
+}
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  size: 18px;
+  background: color($blue lightness(+30%));
+  border-radius: 50%;
+  cursor: pointer;
+}
+.range::-moz-range-thumb {
+  size: 18px;
+  background: color($blue lightness(+30%));
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.range:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color($primary lightness(+35%)),
+    0 0 0 1.5px color($primary lightness(+35%));
+}
+.js-focus-visible .range:focus:not(.focus-visible) {
+  box-shadow: none;
+}

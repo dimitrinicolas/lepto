@@ -20,9 +20,55 @@ class Runner {
     this.unlinkFollowers = {};
     this.cli = params.cli ? true : false;;
     this.cliConfig = typeof params.cliConfig !== 'undefined' ? params.cliConfig : {};
+    this.configFile = typeof params.configFile !== 'undefined' ? params.configFile : '';
     const configSet = this.setConfig(config);
     if (configSet.success) {
-      gui.init();
+      if (this.config.gui) {
+        if (this.cli && path.extname(this.configFile) === '.json') {
+          gui.init(this.config.guiPort);
+          this.updateGUIConfig();
+          gui.on('config-update', (config) => {
+            const normalizedConfig = this.normalizeConfig(config);
+            const diff = deepDiff.diff(normalizedConfig, this.config);
+            if (Object.keys(diff).length) {
+              const configSet = this.setConfig(config);
+              if (configSet.success) {
+                this.processAll();
+                const jsonStr = JSON.stringify(config, null, 2);
+                fse.outputFile(this.configFile, jsonStr, err => {
+                  this.configFileWritten = true;
+                  if (err) {
+                    gui.updateFinish();
+                    events.dispatch('error', 'Unable to save config file from GUI update');
+                  }
+                  else {
+                    gui.updateFinish(config);
+                    events.dispatch('info', {
+                      msg: 'Config updated from GUI'
+                    });
+                  }
+                });
+              }
+              else if (!configSet.success) {
+                events.dispatch('warn', {
+                  msg: `Unable to update config from GUI: ${configSet.msg}`
+                });
+              }
+            }
+            else {
+              events.dispatch('info', {
+                msg: 'Config updated from GUI, but no difference found'
+              });
+            }
+          });
+          if (this.config.openGui) {
+            // TODO open browser
+          }
+        }
+        else {
+          events.dispatch('error', `You can only use lepto GUI by cli with a json config file`);
+        }
+      }
       if (this.config.processAll) {
         this.processAll();
       }
@@ -32,8 +78,8 @@ class Runner {
     }
   }
 
-  setConfig(config) {
-    config = this.normalizeConfig(config);
+  setConfig(data) {
+    const config = this.normalizeConfig(data);
     if (!config.input) {
       return {
         success: false,
@@ -53,8 +99,8 @@ class Runner {
       };
     }
 
+    this.configRaw = data;
     this.config = config;
-    this.updateGUIConfig(this.config);
 
     this.filtersList = filters.generate(path.resolve(this.config.input), this.config.filters);
     this.globAllInput = path.resolve(this.config.input) + '/**/*.*';
@@ -75,17 +121,18 @@ class Runner {
     };
   }
 
-  handleConfigUpdate(newConfig) {
-    newConfig = this.normalizeConfig(newConfig);
-
+  handleConfigUpdate(data) {
+    const newConfig = this.normalizeConfig(data);
     const diff = deepDiff.diff(newConfig, this.config);
     if (Object.keys(diff).length) {
-      const configSet = this.setConfig(newConfig);
+      this.configFileWritten = false;
+      const configSet = this.setConfig(data);
       if (configSet.success) {
         events.dispatch('info', {
           msg: 'Config updated'
         });
         this.processAll();
+        this.updateGUIConfig(this.config);
       }
       else if (!configSet.success) {
         events.dispatch('warn', {
@@ -94,9 +141,12 @@ class Runner {
       }
     }
     else {
-      events.dispatch('info', {
-        msg: 'Config file changed, but no difference found'
-      });
+      if (!this.configFileWritten) {
+        this.configFileWritten = false;
+        events.dispatch('info', {
+          msg: 'Config file changed, but no difference found'
+        });
+      }
     }
   }
 
@@ -243,7 +293,7 @@ class Runner {
   }
 
   updateGUIConfig() {
-    gui.configUpdate(this.config);
+    gui.configUpdate(this.configRaw);
   }
 
   relativeTree(tree) {
@@ -254,10 +304,12 @@ class Runner {
   }
 
   updateGUITree() {
-    const tree = this.relativeTree(dirTree(path.resolve(this.config.input), {
-      extensions: this._extensions
-    }));
-    gui.treeUpdate(tree.children);
+    let tree = dirTree(path.resolve(this.config.input));
+    if (tree) {
+      gui.treeUpdate(this.relativeTree(tree, {
+        extensions: this._extensions
+      }).children);
+    }
   }
 
   processAll() {

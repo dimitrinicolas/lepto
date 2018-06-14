@@ -57,7 +57,8 @@ const satinize = (list) => {
         });
       }
       else {
-        events.dispatch(error, `Invalid plugin format: ${plugin}`);
+        events.dispatch('error', `Invalid plugin format:`);
+        console.log(plugin);
       }
     }
     if (pluginRes && !pluginRes.disabled) {

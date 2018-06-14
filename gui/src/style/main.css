@@ -21,26 +21,3 @@ body {
   font: mono regular 18px;
   color: white;
 }
-
-input {
-  padding: 7px 8px;
-  font: mono regular 15px;
-  color: white;
-  background: black;
-  border-top: none;
-  border-right: none;
-  border-left: none;
-  border-bottom: 1px solid color(black lightness(+20%));
-  transition: .08s;
-}
-input::-moz-focus-inner {
-  border: none;
-}
-input:focus {
-  outline: none;
-  box-shadow: 0 0 0 2.5px color($primary lightness(+35%)),
-    0 0 0 1.5px color($primary lightness(+35%));
-}
-.js-focus-visible input:focus:not(.focus-visible) {
-  box-shadow: none;
-}

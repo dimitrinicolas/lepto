@@ -4,8 +4,9 @@
   "watch": true,
   "watchConfig": true,
   "followUnlink": true,
+  "gui": true,
+  "openGui": true,
   "dataOutput": "demo/output/data.json",
-  "dataRootPath": "demo/input/photos",
   "filters": [
     {
       "glob": "**/*.*",
@@ -31,7 +32,10 @@
       ]
     },
     {
-      "glob": ["**/*.{jpg,jpeg}", "**/*.yo"],
+      "glob": [
+        "**/*.{jpg,jpeg}",
+        "**/*.yo"
+      ],
       "use": [
         {
           "name": "../lepto-resize",
@@ -41,7 +45,9 @@
           "name": "../lepto-webp",
           "quality": 80
         },
-        "../lepto-vibrant-color"
+        {
+          "name": "../lepto-vibrant-color"
+        }
       ]
     },
     {
@@ -56,6 +62,25 @@
           ]
         }
       ]
+    },
+    {
+      "glob": "photos/001.jpg",
+      "use": [
+        {
+          "name": "lepto.jpeg",
+          "quality": 1
+        }
+      ]
+    },
+    {
+      "glob": "photos/003.jpeg",
+      "use": [
+        {
+          "name": "lepto.jpeg",
+          "quality": 16
+        }
+      ]
     }
-  ]
+  ],
+  "testGui": 0.05825242752895199
 }

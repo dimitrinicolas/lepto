@@ -63,6 +63,8 @@
   margin-y: 10px;
 }
 .filters__use__item input {
+  width: 100%;
+  max-width: 250px;
   margin-top: 0;
   margin-bottom: 5px;
 }
@@ -94,6 +96,9 @@
   padding: 4px 4px 4px 20px;
   transition: .08s;
 }
+.filters__use__data.--error {
+  background: #330808;
+}
 .filters__use__data::before,
 .filters__use__data::after {
   display: block;
@@ -109,4 +114,8 @@
   outline: none;
   box-shadow: 0 0 0 3px color($primary lightness(+35%)),
     0 0 0 1.5px color($primary lightness(+35%));
+}
+.filters__use__data.--error:focus {
+  box-shadow: 0 0 0 3px $red,
+    0 0 0 1.5px $red;
 }

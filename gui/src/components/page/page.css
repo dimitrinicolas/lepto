@@ -2,6 +2,7 @@
   background: black;
 }
 .page.page--bottom {
+  overflow: hidden;
   background: $bottom;
 }
 
@@ -10,6 +11,10 @@
   margin-x: auto;
   padding-y: 60px 30px;
   padding-x: @1032 30px @600 15px;
+}
+.page.page--bottom .page__wrap {
+  max-width: 1600px @1632 100%;
+  padding-x: @1632 30px @600 15px;
 }
 .page__wrap--split {
   display: flex;

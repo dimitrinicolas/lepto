@@ -45,6 +45,7 @@
     "css-mqpacker": "^6.0.2",
     "focus-visible": "^4.1.4",
     "glob": "^7.0.5",
+    "magnifier": "^0.4.0",
     "npm-watch": "^0.3.0",
     "postcss": "^6.0.22",
     "postcss-axis": "^0.1.2",
