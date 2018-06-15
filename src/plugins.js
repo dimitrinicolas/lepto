@@ -22,7 +22,7 @@ const resolverPlugin = (name) => {
   else if (name.indexOf('/') !== -1) {
     return require(path.resolve(process.cwd(), name));
   }
-  else if {
+  else {
     return require(name);
   }
 }
