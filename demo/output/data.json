@@ -2,31 +2,36 @@
   "photos/001.jpg": {
     "vibrantColor": {
       "vibrant": "#6c94d1",
-      "lightVibrant": "#88b3ec",
-      "darkVibrant": "#1b315d",
-      "muted": "#617aa2",
-      "lightMuted": "#6e8bb7",
-      "darkMuted": "#2e3956"
+      "lightVibrant": "#94c0ec",
+      "darkVibrant": "#1b305a",
+      "muted": "#697fa3",
+      "lightMuted": "#9faac4",
+      "darkMuted": "#2e3957"
     }
   },
   "photos/002.jpg": {
     "vibrantColor": {
-      "vibrant": "#506cbc",
-      "lightVibrant": "#eeacb5",
-      "darkVibrant": "#243278",
-      "muted": "#aa5f81",
-      "lightMuted": "#c5b5cd",
-      "darkMuted": "#432633"
+      "vibrant": "#4866ad",
+      "lightVibrant": "#e398af",
+      "darkVibrant": "#243379",
+      "muted": "#a25d94",
+      "lightMuted": "#d8b5c6",
+      "darkMuted": "#2c2c5a"
     }
   },
   "photos/003.jpeg": {
     "vibrantColor": {
-      "vibrant": "#1279a1",
-      "lightVibrant": "#a9d3f4",
-      "darkVibrant": "#1f4a62",
+      "vibrant": "#1278a2",
+      "lightVibrant": "#aad2f4",
+      "darkVibrant": "#1f4962",
       "muted": "#4f8db2",
       "lightMuted": "#aec4d4",
       "darkMuted": "#324248"
     }
-  }
+  },
+  "fb.png": null,
+  "image.png": null,
+  "image copie.png": null,
+  "midi-controller-css.gif": null,
+  "svgfile.svg": null
 }

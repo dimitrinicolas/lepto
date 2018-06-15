@@ -7,10 +7,10 @@
 }
 
 .page__wrap {
-  max-width: 1000px @1032 100%;
+  max-width: 900px @932 100%;
   margin-x: auto;
   padding-y: 60px 30px;
-  padding-x: @1032 30px @600 15px;
+  padding-x: @932 30px @600 15px;
 }
 .page.page--bottom .page__wrap {
   max-width: 1600px @1632 100%;

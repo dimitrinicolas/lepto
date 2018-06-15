@@ -306,11 +306,11 @@ class Runner {
   }
 
   updateGUITree() {
-    let tree = dirTree(path.resolve(this.config.input));
+    let tree = dirTree(path.resolve(this.config.input), {
+      extensions: this._extensions
+    });
     if (tree) {
-      gui.treeUpdate(this.relativeTree(tree, {
-        extensions: this._extensions
-      }).children);
+      gui.treeUpdate(this.relativeTree(tree).children);
     }
   }
 

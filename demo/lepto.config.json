@@ -2,64 +2,57 @@
   "input": "demo/input",
   "output": "demo/output",
   "watch": true,
-  "watchConfig": true,
-  "followUnlink": true,
-  "gui": true,
-  "openGui_": true,
-  "dataOutput": "demo/output/data.json",
   "filters": [
     {
       "glob": "**/*.*",
       "use": [
         {
           "name": "lepto.jpeg",
-          "quality": 75,
-          "forceExt": "jpg"
-        },
-        {
-          "name": "lepto.png",
-          "compression": 9
-        },
-        {
-          "name": "lepto.gif",
-          "colors": 100,
-          "optimizationLevel": 3,
-          "interlaced": true
-        },
-        {
-          "name": "lepto.svg"
-        }
-      ]
-    },
-    {
-      "glob": [
-        "**/*.{jpg,jpeg}",
-        "**/*.yo"
-      ],
-      "use": [
-        {
-          "name": "../lepto-resize",
-          "maxWidth": 1200
-        },
-        {
-          "name": "../lepto-webp",
           "quality": 80
         },
         {
-          "name": "../lepto-vibrant-color"
+          "name": "../lepto-resize",
+          "maxWidth": 1200
         }
       ]
     },
     {
-      "glob": "**/*.png",
+      "glob": "*.jpg",
       "use": [
         {
           "name": "../lepto-resize",
-          "maxSize": 64,
-          "retina": [
-            2,
-            3
-          ]
+          "height": 100
+        },
+        {
+          "name": "lepto.jpeg",
+          "quality": 60
+        }
+      ]
+    },
+    {
+      "glob": "gui/gui-image.jpg",
+      "use": [
+        {
+          "name": "lepto.jpeg",
+          "quality": 58
+        }
+      ]
+    },
+    {
+      "glob": "gui/gui-tree.jpg",
+      "use": [
+        {
+          "name": "lepto.jpeg",
+          "quality": 30
+        }
+      ]
+    },
+    {
+      "glob": "gui/lepto-cli.jpg",
+      "use": [
+        {
+          "name": "lepto.jpeg",
+          "quality": 82
         }
       ]
     }

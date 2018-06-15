@@ -1,12 +1,12 @@
 # lepto
 
-> Automated images Editing, Optimization and Analyze
+> Automated images Editing, Optimization and Analysis
 
-The main purpose of this tool is to make the best images optimizations practices simple to implement in your projects. This project is recent, so use it with care, I'm listening to all feedbacks.
+The main purpose of this tool is to **make the best images optimizations practices simple** to implement in your projects. This project is recent, so use it with care, I'm listening to all feedbacks (we can talk via [twitter](https://twitter.com/dimitrincls), don't follow me I never tweet).
 
 You give to lepto your input directory, the plugins and their options that you want to use, your output directory. Then lepto does his job.
 
-What is the difference with [ImageMin](https://github.com/imagemin/imagemin)? I think that ImageMin and lepto are suitables for differents project. If you deal with large applications, then go on ImageMin, but if you are building small static websites and you want to simply keep your assets directory structure, then you could try lepto.
+**What is the difference with [ImageMin](https://github.com/imagemin/imagemin)?** I think that ImageMin and lepto are suitable for different project. If you deal with large applications, then go on ImageMin, but if you are building small static websites and you want to simply keep your assets directory structure, then you could try lepto.
 
 If you want to learn more about images optimizations, I recommend you the amazing [images.guide](https://images.guide/) by Addy Osmani.
 
@@ -16,9 +16,9 @@ If you want to learn more about images optimizations, I recommend you the amazin
 $ npm i -D lepto
 ```
 
-### CLI / npm scripts
+### CLI / npm scripts (Recommended)
 
-I recommend you to use lepto via [lepto-cli](https://github.com/dimitrinicolas/lepto-cli), so it can easily be integrated to your build process with npm sripts.
+I recommend you to use lepto via [lepto-cli](https://github.com/dimitrinicolas/lepto-cli), so it can easily be integrated to your build process with npm scripts.
 
 ```console
 $ npm i -g lepto-cli
@@ -30,39 +30,97 @@ $ lepto setup
 ```
 It will guide you to create a configuration file.
 
+![lepto-cli](demo/readme/lepto-cli.jpg)
+
 Check out [lepto-cli repository](https://github.com/dimitrinicolas/lepto-cli) for more informations.
 
 ### GUI
 
 You can access the GUI if you launched lepto from the CLI, by default at the address `http://localhost:4490`.
 
-The purpose of the GUI is to add more precise quality settings to files one by one. You can easily play with the quality slider and see the result at the same time, so you can choose the most suitable option for each of your ressources.
+![GUI tree view](demo/readme/gui-tree.jpg)
+
+The purpose of the GUI is to add more precise quality settings to files one by one. You can easily play with the quality slider and see the result at the same time, so you can choose the most suitable option for each of your resources.
 
 You can also edit your filters and plugins configuration thought the interface.
 
 To save the changes and relaunch lepto's process, click on the Save button or press  <kbd>⌘S</kbd> / <kbd>Ctrl+S</kbd>.
 
+![GUI tree view](demo/readme/gui-image.jpg)
+
 > See below for Node.js API usage.
 
 ## Plugins
+
+You have to say to lepto how it will process your files. So you set in your config a `filters` array containing several groups of plugins associated with their `glob`. For each image, Lepto will go thought the list of filters and test if the file match each of the plugins groups. If it matches the same plugin several times, **the last one will overwrite the parameters of the previous ones, but the plugin will keep its place in the order of process**. Example:
+
+```js
+/* letpo.config.json */
+{
+  "input": "assets/input",
+  "output": "assets/output",
+  "watch": true,
+  "filters": [
+    {
+      "glob": "**/*.*",
+      "use": [
+        {
+          "name": "lepto.jpeg",
+          "quality": 80
+        }, {
+          "name": "lepto-resize",
+          "maxWidth": 1200
+        }
+      ]
+    }, {
+      "glob": "*.jpg",
+      "use": [
+        {
+          "name": "lepto-resize",
+          "height": 100
+        }, {
+          "name": "lepto.jpeg",
+          "quality": 60
+        }
+      ]
+    }
+  ]
+}
+```
+The file `photo.jpg`, will be processed with this list of plugins:
+```js
+[
+  {
+    "name": "lepto.jpeg",
+    "quality": 60
+  }, {
+    "name": "lepto-resize",
+    "height": 100
+  }
+]
+```
+So the first order of appearance is preserved, but the settings are overridden by the last ones.
+
+If you want to use a plugin more than one time, you can add `#` at the end of its name, so it's creating like a "new plugin", eg: `"lepto-resize#retina"`.
 
 ### Built-in plugins
 
 Lepto carries some built-in plugins, their name is prefixed by `"lepto."`. Theses plugins doesn't create more files than they receives. Their only goal is to optimize files size, they can't ouput a larger file.
 
-#### "lepto.jpeg" using [`sharp`](https://www.npmjs.com/package/sharp)
+#### "lepto.jpeg"
 
-Default config:
+It use [`sharp`](https://www.npmjs.com/package/sharp). Default config:
 ```js
 {
   "quality": 80, /* From 1 to 100 */
-  "progressive": true
+  "progressive": true,
+  "forceExt": null /* You can force the same extension for all jpgs file, eg: replace all .jpeg images by setting forceExt to "jpg" */
 }
 ```
 
-#### "lepto.png" using [`node-pngquant`](https://www.npmjs.com/package/pngquant)
+#### "lepto.png"
 
-Default config:
+It use [`node-pngquant`](https://www.npmjs.com/package/pngquant). Default config:
 ```js
 {
   "quality": "70-80", /* From 0 (worst) to 100 (better) */
@@ -71,22 +129,23 @@ Default config:
 }
 ```
 
-#### "lepto.gif", using ImageMin's implementation of gifsicle: [`gifsicle`](https://www.npmjs.com/package/gifsicle)
+#### "lepto.gif"
 
-Default config:
+It use ImageMin's implementation of gifsicle: [`gifsicle`](https://www.npmjs.com/package/gifsicle). Default config:
 ```js
 {
   "colors": 256 /* From 2 to 256 */
 }
 ```
 
-#### "lepto.svg", using [`svgo`](https://www.npmjs.com/package/svgo)
+#### "lepto.svg"
 
-It follows the [SVGO's config](https://github.com/svg/svgo#what-it-can-do).
+It use [`svgo`](https://www.npmjs.com/package/svgo), and his config follows the [SVGO's config](https://github.com/svg/svgo#what-it-can-do).
 
 ### Additional plugins
 
 * [`lepto-resize`](https://github.com/dimitrinicolas/lepto-resize) To resize and create retina alternatives
+* [`lepto-webp`](https://github.com/dimitrinicolas/lepto-webp) To create .webp alternatives
 * [`lepto-vibrant-color`](https://github.com/dimitrinicolas/lepto-vibrant-color) To collect the vibrant colors from your images using `node-vibrant` and save them inside your data json file
 
 ## Config
@@ -96,7 +155,7 @@ Default config:
 {
   "watch": false, /* Watch for input file changes */
   "watchConfig": false, /* Watch for config file change to automatically update it */
-  "followUnlink": false, /* Remove ouputed files when the source file is deleted from the input directory */
+  "followUnlink": false, /* Remove output files when the source file is deleted from the input directory */
   "processAll": true, /* Process all files on launch, recommended if followUnlink activated */
   "gui": true, /* The GUI can be disabled */
   "openGui": false, /* Automatically open the GUI in your default browser */
