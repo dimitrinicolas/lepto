@@ -23,7 +23,7 @@ const resolverPlugin = (name) => {
     return require(path.resolve(process.cwd(), name));
   }
   else {
-    return require(name);
+    return require(path.join(process.cwd(), '/node_modules/' + name));
   }
 }
 
