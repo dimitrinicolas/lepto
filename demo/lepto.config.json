@@ -62,34 +62,6 @@
           ]
         }
       ]
-    },
-    {
-      "glob": "photos/001.jpg",
-      "use": [
-        {
-          "name": "lepto.jpeg",
-          "quality": 1
-        }
-      ]
-    },
-    {
-      "glob": "photos/003.jpeg",
-      "use": [
-        {
-          "name": "lepto.jpeg",
-          "quality": 16
-        }
-      ]
-    },
-    {
-      "glob": "midi-controller-css.gif",
-      "use": [
-        {
-          "name": "lepto.gif",
-          "colors": 255
-        }
-      ]
     }
-  ],
-  "testGui": 0.05825242752895199
+  ]
 }

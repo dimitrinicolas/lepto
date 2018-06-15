@@ -501,10 +501,10 @@ input:not(.range):focus {
   flex: 1;
 }
 .page__col:first-of-type {
-  margin-left: auto;
+  margin-right: 20px;
 }
 .page__col:last-of-type {
-  margin-left: auto;
+  margin-left: 20px;
 }
 .page--bottom .page__wrap {
   padding-top: 40px;

@@ -11,6 +11,6 @@ module.exports = {
     return path.basename(filename, path.extname(filename));
   },
   ext: (filename) => {
-    return path.extname(filename).slice(1).toLowerCase();
+    return path.extname(filename).slice(1);
   }
 };

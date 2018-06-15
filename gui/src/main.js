@@ -305,6 +305,7 @@ const deepTreeDive = (tree, ids) => {
 };
 
 const setQuality = (q, img, src) => {
+  console.log('setQuality', q, img, src);
   const sizeDiffEl = document.getElementById('sizeDiff');
   console.log(sizeDiffEl);
   if (sizeDiffEl) {
@@ -369,7 +370,7 @@ const addOptimPlugin = () => {
     }
   }
   updateConfigDOM();
-  smoothScroll(0, 300);
+  smoothScroll(Math.max(0, window.scrollY - 300), 300);
 };
 
 const handleOptimBtnEvent = (event) => {
@@ -456,10 +457,10 @@ const handleFileFocus = (id) => {
     const img = document.createElement('img');
     img.id = 'result-img';
     img.addEventListener('load', initMagnifier);
-    img.src = 'ressources/' + file.path;
     imgWrap.appendChild(img);
     selectedFileEl.appendChild(imgWrap);
 
+    setQuality(slider.value, img, 'ressources/' + file.path);
     slider.addEventListener('change', function(label, img, src) {
       return (event) => {
         label.innerHTML = event.target.value;
@@ -483,6 +484,7 @@ const handleFileFocus = (id) => {
 
 const handleFileEvent = (id) => {
   return (event) => {
+    console.log(event, event.type, event.keyCode);
     if (event.type === 'keypress') {
       if (event.keyCode === 13) {
         handleFileFocus(id);

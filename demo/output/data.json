@@ -1,12 +1,12 @@
 {
   "photos/001.jpg": {
     "vibrantColor": {
-      "vibrant": "#4b8dbc",
-      "lightVibrant": "#94c9f7",
-      "darkVibrant": "#101e4f",
-      "muted": "#627ab1",
-      "lightMuted": "#d3d2d8",
-      "darkMuted": "#783854"
+      "vibrant": "#6c94d1",
+      "lightVibrant": "#88b3ec",
+      "darkVibrant": "#1b315d",
+      "muted": "#617aa2",
+      "lightMuted": "#6e8bb7",
+      "darkMuted": "#2e3956"
     }
   },
   "photos/002.jpg": {
@@ -21,12 +21,12 @@
   },
   "photos/003.jpeg": {
     "vibrantColor": {
-      "vibrant": "#0d78a5",
-      "lightVibrant": "#92cce7",
-      "darkVibrant": "#214a62",
+      "vibrant": "#1279a1",
+      "lightVibrant": "#a9d3f4",
+      "darkVibrant": "#1f4a62",
       "muted": "#4f8db2",
-      "lightMuted": "#a6bfd2",
-      "darkMuted": "#314248"
+      "lightMuted": "#aec4d4",
+      "darkMuted": "#324248"
     }
   }
 }
