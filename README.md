@@ -103,6 +103,8 @@ So the first order of appearance is preserved, but the settings are overridden b
 
 If you want to use a plugin more than one time, you can add `#` at the end of its name, so it's creating like a "new plugin", eg: `"lepto-resize#retina"`.
 
+You can disable a plugin by setting its `disabled` option to `true`.
+
 ### Built-in plugins
 
 Lepto carries some built-in plugins, their name is prefixed by `"lepto."`. Theses plugins doesn't create more files than they receives. Their only goal is to optimize files size, they can't ouput a larger file.

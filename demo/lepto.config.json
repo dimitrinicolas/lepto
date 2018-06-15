@@ -11,7 +11,7 @@
           "quality": 80
         },
         {
-          "name": "../lepto-resize",
+          "name": "lepto-resize",
           "maxWidth": 1200
         }
       ]
@@ -20,7 +20,7 @@
       "glob": "*.jpg",
       "use": [
         {
-          "name": "../lepto-resize",
+          "name": "lepto-resize",
           "height": 100
         },
         {
