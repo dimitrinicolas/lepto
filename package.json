@@ -1,6 +1,6 @@
 {
   "name": "lepto",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Advanced images minification CLI tool",
   "main": "src/lepto.js",
   "repository": {
@@ -46,6 +46,9 @@
     "css-mqpacker": "^6.0.2",
     "focus-visible": "^4.1.4",
     "glob": "^7.0.5",
+    "lepto-resize": "^1.0.0",
+    "lepto-vibrant-color": "^1.0.0",
+    "lepto-webp": "^1.0.0",
     "magnifier": "^0.4.0",
     "npm-watch": "^0.3.0",
     "postcss": "^6.0.22",

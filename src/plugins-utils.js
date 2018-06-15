@@ -1,9 +1,11 @@
 const fileType = require('file-type');
 const imageSize = require('image-size');
+const sharp = require('sharp');
 const path = require('path');
 
 module.exports = {
   size: imageSize,
+  sharp: sharp,
   mime: (buffer) => {
     return fileType(buffer).mime;
   },

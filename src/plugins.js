@@ -19,8 +19,11 @@ const resolverPlugin = (name) => {
     name = name.substr('lepto.'.length, name.length);
     return nativePlugins[name];
   }
-  else {
+  else if (name.indexOf('/') !== -1) {
     return require(path.resolve(process.cwd(), name));
+  }
+  else if {
+    return require(name);
   }
 }
 

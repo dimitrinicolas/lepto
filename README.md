@@ -288,6 +288,7 @@ module.exports = plugin;
 Utils functions:
 
 * `utils.size(Buffer)` return an object like `{ width: 100, height: 100 }`.
+* `utils.sharp(Buffer)` [sharp node module](https://github.com/lovell/sharp).
 * `utils.mime(Buffer)` return the mime type as a string, eg: `"image/jpeg"`, [learn more here](https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types).
 * `utils.base(String)` return the base name of a file name, eg: `"IMG001.JPG"` > `"IMG001"`.
 * `utils.ext(String)` return the extension of a file name, eg: `"IMG001.JPG"` > `"JPG"`.
