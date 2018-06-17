@@ -1,6 +1,6 @@
 {
   "name": "lepto",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Advanced images Editing, Optimization and Analysis CLI and GUI tool",
   "main": "src/lepto.js",
   "repository": {

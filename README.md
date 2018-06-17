@@ -30,7 +30,7 @@ $ lepto setup
 ```
 It will guide you to create a configuration file.
 
-[![lepto-cli](demo/readme/lepto-cli.jpg)](https://github.com/dimitrinicolas/lepto-cli)
+[![lepto-cli](fixtures/readme/lepto-cli.jpg)](https://github.com/dimitrinicolas/lepto-cli)
 
 Check out [lepto-cli repository](https://github.com/dimitrinicolas/lepto-cli) for more informations.
 
@@ -38,7 +38,7 @@ Check out [lepto-cli repository](https://github.com/dimitrinicolas/lepto-cli) fo
 
 You can access the GUI if you launched lepto from the CLI, by default at the address `http://localhost:4490`.
 
-![GUI tree view](demo/readme/gui-tree.jpg)
+![GUI tree view](fixtures/readme/gui-tree.jpg)
 
 The purpose of the GUI is to add more precise quality settings to files one by one. You can easily play with the quality slider and see the result at the same time, so you can choose the most suitable option for each of your resources.
 
@@ -46,7 +46,7 @@ You can also edit your filters and plugins configuration thought the interface.
 
 To save the changes and relaunch lepto's process, click on the Save button or press  <kbd>⌘S</kbd> / <kbd>Ctrl+S</kbd>.
 
-![GUI tree view](demo/readme/gui-image.jpg)
+![GUI tree view](fixtures/readme/gui-image.jpg)
 
 > See below for Node.js API usage.
 

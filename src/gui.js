@@ -6,6 +6,7 @@ const socketIO = require('socket.io');
 const opn = require('opn');
 
 const beautifier = require('./beautifier.js');
+const EventsHandler = require('./events-handler.js');
 const nativePlugins = require('../plugins');
 const pipe = require('./pipe.js');
 
@@ -15,23 +16,9 @@ let currentTree = [];
 
 let guiEventListeners = [];
 
-const on = (name, func) => {
-  if (typeof name === 'string' && typeof func === 'function') {
-    guiEventListeners.push({
-      name,
-      func
-    });
-  }
-};
-const dispatch = (name, data) => {
-  for (let listener of guiEventListeners) {
-    if (name === listener.name) {
-      listener.func(data);
-    }
-  }
-};
+const eventsHandler = new EventsHandler;
 
-const init = (port, opts={}, eventsHandler) => {
+const init = (port, opts={}, runnerEvents) => {
   io = socketIO(parseInt(port) + 1);
 
 	io.on('connection', function(socket) {
@@ -39,7 +26,7 @@ const init = (port, opts={}, eventsHandler) => {
     io.emit('config-update', currentConfig);
 
 		socket.on('update-config', function(data) {
-      dispatch('config-update', data);
+      eventsHandler.dispatch('config-update', data);
 		});
 	});
 
@@ -132,11 +119,11 @@ const init = (port, opts={}, eventsHandler) => {
 			response.end();
 		}
 	}).listen(port);
+  runnerEvents.dispatch('info', {
+    msg: `GUI at the address http://localhost:${port}`,
+    color: 'lightblue'
+  });
   if (opts.openGui) {
-    eventsHandler.dispatch('info', {
-      msg: `GUI at the address http://localhost:${port}`,
-      color: 'lightblue'
-    });
     opn('http://localhost:' + port);
   }
 };
@@ -169,5 +156,5 @@ module.exports = {
   configUpdate,
   treeUpdate,
   updateFinish,
-  on
+  on: eventsHandler.on
 };
