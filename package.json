@@ -1,7 +1,7 @@
 {
   "name": "lepto",
-  "version": "1.0.3",
-  "description": "Advanced images minification CLI tool",
+  "version": "1.0.4",
+  "description": "Advanced images Editing, Optimization and Analysis CLI and GUI tool",
   "main": "src/lepto.js",
   "repository": {
     "type": "git",

@@ -8,7 +8,7 @@ import plugins from './src/plugins.js';
 
 const config = {
   input: 'fixtures/input',
-  output: 'fixtures/outputtest'
+  output: 'fixtures/test'
 };
 
 /* lepto */

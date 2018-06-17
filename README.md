@@ -1,4 +1,4 @@
-# lepto
+# lepto ![Travis CI](https://img.shields.io/travis/dimitrinicolas/lepto.svg)
 
 > Automated images Editing, Optimization and Analysis
 
@@ -30,7 +30,7 @@ $ lepto setup
 ```
 It will guide you to create a configuration file.
 
-![lepto-cli](demo/readme/lepto-cli.jpg)
+[![lepto-cli](demo/readme/lepto-cli.jpg)](https://github.com/dimitrinicolas/lepto-cli)
 
 Check out [lepto-cli repository](https://github.com/dimitrinicolas/lepto-cli) for more informations.
 
@@ -200,8 +200,8 @@ The `processed-file` gives an object with informations about the file process:
   adj: 'new', /* file watch event: '' (initial process), 'new' or 'changed' */
   input: 'icons/github.png',
   inputSize: 1000000, /* sizes in bytes */
-  outputSizes: [ 20000, 50000 ]
   output: [ 'icons/github.png', 'icons/github@2x.png' ],
+  outputSizes: [ 20000, 50000 ],
   timeSpent: 300 /* process time in ms */
 }
 ```
@@ -217,7 +217,7 @@ runner.on('processed-file', data => {
 });
 runner.on('all', (data, event) => { /* When listening to 'all' events, the callback receive the event name as a seconde argument */
   if (typeof data.msg !== 'undefined') {
-    console.log(event + data.msg);
+    console.log(`${event}: ${data.msg}`);
   }
 });
 ```
