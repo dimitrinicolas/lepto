@@ -6,7 +6,6 @@ const socketIO = require('socket.io');
 const opn = require('opn');
 
 const beautifier = require('./beautifier.js');
-const events = require('./events.js');
 const nativePlugins = require('../plugins');
 const pipe = require('./pipe.js');
 
@@ -32,7 +31,7 @@ const dispatch = (name, data) => {
   }
 };
 
-const init = (port, opts={}) => {
+const init = (port, opts={}, eventsHandler) => {
   io = socketIO(parseInt(port) + 1);
 
 	io.on('connection', function(socket) {
@@ -134,7 +133,7 @@ const init = (port, opts={}) => {
 		}
 	}).listen(port);
   if (opts.openGui) {
-    events.dispatch('info', {
+    eventsHandler.dispatch('info', {
       msg: `GUI at the address http://localhost:${port}`,
       color: 'lightblue'
     });

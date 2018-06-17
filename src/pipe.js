@@ -1,8 +1,7 @@
-const events = require('./events.js');
 const utilsFunc = require('./plugins-utils.js');
 
 process.on('unhandledRejection', (reason, p) => {
-  events.dispatch('error', ['Unhandled error in a promise, reason:']);
+  console.log('Unhandled error in a promise, reason:');
   console.log(reason, p);
 });
 

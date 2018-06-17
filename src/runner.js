@@ -8,7 +8,7 @@ const fse = require('fs-extra');
 const path = require('path');
 
 const defaultConfig = require('./default-config.js');
-const events = require('./events.js');
+const EventsHandler = require('./events-handler.js');
 const filters = require('./filters.js');
 const gui = require('./gui.js');
 const pipe = require('./pipe.js');
@@ -21,13 +21,17 @@ class Runner {
     this.cli = params.cli ? true : false;;
     this.cliConfig = typeof params.cliConfig !== 'undefined' ? params.cliConfig : {};
     this.configFile = typeof params.configFile !== 'undefined' ? params.configFile : '';
+    this.filtersList = [];
+    this.globAllInput = '';
+    this.globAllOutput = '';
+    this.eventsHandler = new EventsHandler();
     const configSet = this.setConfig(config);
     if (configSet.success) {
       if (this.config.gui) {
         if (this.cli && path.extname(this.configFile) === '.json') {
           gui.init(this.config.guiPort, {
             openGui: this.config.openGui
-          });
+          }, this.eventsHandler);
           this.updateGUIConfig();
           gui.on('config-update', (config) => {
             const normalizedConfig = this.normalizeConfig(config);
@@ -41,24 +45,24 @@ class Runner {
                   this.configFileWritten = true;
                   if (err) {
                     gui.updateFinish();
-                    events.dispatch('error', 'Unable to save config file from GUI update');
+                    this.eventsHandler.dispatch('error', 'Unable to save config file from GUI update');
                   }
                   else {
                     gui.updateFinish(config);
-                    events.dispatch('info', {
+                    this.eventsHandler.dispatch('info', {
                       msg: 'Config updated from GUI'
                     });
                   }
                 });
               }
               else if (!configSet.success) {
-                events.dispatch('warn', {
+                this.eventsHandler.dispatch('warn', {
                   msg: `Unable to update config from GUI: ${configSet.msg}`
                 });
               }
             }
             else {
-              events.dispatch('info', {
+              this.eventsHandler.dispatch('info', {
                 msg: 'Config updated from GUI, but no difference found'
               });
             }
@@ -68,7 +72,7 @@ class Runner {
           }
         }
         else {
-          events.dispatch('error', `You can only use lepto GUI by cli with a json config file`);
+          this.eventsHandler.dispatch('error', `You can only use lepto GUI by cli with a json config file`);
         }
       }
       if (this.config.processAll) {
@@ -76,7 +80,7 @@ class Runner {
       }
     }
     else {
-      events.dispatch('error', configSet.msg);
+      this.eventsHandler.dispatch('error', configSet.msg);
     }
   }
 
@@ -104,7 +108,7 @@ class Runner {
     this.configRaw = data;
     this.config = config;
 
-    this.filtersList = filters.generate(path.resolve(this.config.input), this.config.filters);
+    this.filtersList = filters.generate(path.resolve(this.config.input), this.config.filters, this.eventsHandler);
     this.globAllInput = path.resolve(this.config.input) + '/**/*.*';
     this.globAllOutput = path.resolve(this.config.output) + '/**/*.*';
 
@@ -130,14 +134,14 @@ class Runner {
       this.configFileWritten = false;
       const configSet = this.setConfig(data);
       if (configSet.success) {
-        events.dispatch('info', {
+        this.eventsHandler.dispatch('info', {
           msg: 'Config updated'
         });
         this.processAll();
         this.updateGUIConfig(this.config);
       }
       else if (!configSet.success) {
-        events.dispatch('warn', {
+        this.eventsHandler.dispatch('warn', {
           msg: `Unable to update config: ${configSet.msg}`
         });
       }
@@ -145,7 +149,7 @@ class Runner {
     else {
       if (!this.configFileWritten) {
         this.configFileWritten = false;
-        events.dispatch('info', {
+        this.eventsHandler.dispatch('info', {
           msg: 'Config file changed, but no difference found'
         });
       }
@@ -188,13 +192,13 @@ class Runner {
       if (pluginsList.length === 0) {
         fs.readFile(item, (err, buffer) => {
           if (err) {
-            events.dispatch('error', `Unable to read ${item}`);
+            this.eventsHandler.dispatch('error', `Unable to read ${item}`);
             return;
           }
           const outputPath = path.resolve(this.config.output + '/' + path.dirname(relativePath) + '/' + path.basename(relativePath));
           fse.outputFile(outputPath, buffer, err => {
             if (err) {
-              events.dispatch('error', `Unable to save ${outputPath} file`);
+              this.eventsHandler.dispatch('error', `Unable to save ${outputPath} file`);
             }
           });
         });
@@ -202,7 +206,7 @@ class Runner {
       else {
         fs.readFile(item, (err, buffer) => {
           if (err) {
-            events.dispatch('error', `Unable to read ${item}`);
+            this.eventsHandler.dispatch('error', `Unable to read ${item}`);
             return;
           }
           let imgType = fileType(buffer);
@@ -227,7 +231,7 @@ class Runner {
               }
               pipe(pipedData, pluginsFuncs).then(function(res={}) {
                 if (typeof res === null || typeof res !== 'object') {
-                  events.dispatch('error', 'Some piped data have been deteriorated by a plugin');
+                  this.eventsHandler.dispatch('error', 'Some piped data have been deteriorated by a plugin');
                   return;
                 }
                 if (res.__error) {
@@ -246,7 +250,7 @@ class Runner {
                       }
                     }
                   }
-                  events.dispatch('error', `Unable to process ${relativePath}${additionalInfo}`);
+                  this.eventsHandler.dispatch('error', `Unable to process ${relativePath}${additionalInfo}`);
                   return;
                 }
                 const timeSpent = Date.now() - processStart;
@@ -255,10 +259,10 @@ class Runner {
                   if (this.config.dataRootPath) {
                     inputName = path.relative(path.resolve(process.cwd(), this.config.dataRootPath), path.resolve(process.cwd(), this.config.input, inputName));
                   }
-                  saveData(path.resolve(process.cwd(), this.config.dataOutput), inputName, res.data);
+                  saveData(path.resolve(process.cwd(), this.config.dataOutput), inputName, res.data, this.eventsHandler);
                 }
                 else if (!this.config.dataOutput && Object.keys(res.data).length) {
-                  events.dispatch('info', {
+                  this.eventsHandler.dispatch('info', {
                     msg: `Some plugins are outputing data but you didn't set up a dataOutput path`
                   });
                 }
@@ -269,7 +273,7 @@ class Runner {
                   outputSizes.push(output.buffer.length);
                 }
                 this.unlinkFollowers[path.resolve(process.cwd(), this.config.input, res.input)] = outputFiles.map(output => path.resolve(process.cwd(), this.config.output, output));
-                events.dispatch('processed-file', {
+                this.eventsHandler.dispatch('processed-file', {
                   adj,
                   input: relativePath,
                   inputSize,
@@ -282,7 +286,7 @@ class Runner {
                   const outputPath = path.resolve(this.config.output + '/' + output.dir + '/' + output.filename);
                   fse.outputFile(outputPath, output.buffer, err => {
                     if (err) {
-                      events.dispatch('error', `Unable to save ${outputPath}`);
+                      this.eventsHandler.dispatch('error', `Unable to save ${outputPath}`);
                     }
                   });
                 }
@@ -291,26 +295,6 @@ class Runner {
           }
         });
       }
-    }
-  }
-
-  updateGUIConfig() {
-    gui.configUpdate(this.configRaw);
-  }
-
-  relativeTree(tree) {
-    return Object.assign({}, tree, {
-      path: path.relative(this.config.input, tree.path),
-      children: tree.children ? tree.children.map(child => this.relativeTree(child)) : []
-    })
-  }
-
-  updateGUITree() {
-    let tree = dirTree(path.resolve(this.config.input), {
-      extensions: this._extensions
-    });
-    if (tree) {
-      gui.treeUpdate(this.relativeTree(tree).children);
     }
   }
 
@@ -324,23 +308,43 @@ class Runner {
     this.updateGUITree();
   }
 
+  updateGUIConfig() {
+    gui.configUpdate(this.configRaw);
+  }
+
+  relativeTree(tree) {
+    return Object.assign({}, tree, {
+      path: path.relative(this.config.input, tree.path),
+      children: tree.children ? tree.children.map(child => this.relativeTree(child)) : []
+    });
+  }
+
+  updateGUITree() {
+    const tree = dirTree(path.resolve(this.config.input), {
+      extensions: this._extensions
+    });
+    if (tree) {
+      gui.treeUpdate(this.relativeTree(tree).children);
+    }
+  }
+
   unlink(filePath) {
     if (this.config.dataOutput) {
       let inputName = path.relative(path.resolve(process.cwd(), this.config.input), filePath);
       if (this.config.dataRootPath) {
         inputName = path.relative(path.resolve(process.cwd(), this.config.dataRootPath), path.resolve(process.cwd(), this.config.input, inputName));
       }
-      saveData(path.resolve(process.cwd(), this.config.dataOutput), inputName, null);
+      saveData(path.resolve(process.cwd(), this.config.dataOutput), inputName, null, this.eventsHandler);
     }
     if (Array.isArray(this.unlinkFollowers[filePath])) {
       for (let output of this.unlinkFollowers[filePath]) {
         fse.remove(output, function(output) {
           return (err) => {
             if (err) {
-              events.dispatch('error', `Unable to follow unlink of ${output}`);
+              this.eventsHandler.dispatch('error', `Unable to follow unlink of ${output}`);
             }
             else {
-              events.dispatch('success', {
+              this.eventsHandler.dispatch('success', {
                 msg: `Removed ${output}`
               });
             }
@@ -351,7 +355,7 @@ class Runner {
   }
 
   on(name, func) {
-    events.on(name, func);
+    this.eventsHandler.on(name, func);
     return this;
   }
 };

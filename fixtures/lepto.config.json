@@ -1,0 +1,60 @@
+{
+  "input": "demo/input",
+  "output": "demo/output",
+  "watch": true,
+  "filters": [
+    {
+      "glob": "**/*.*",
+      "use": [
+        {
+          "name": "lepto.jpeg",
+          "quality": 80
+        },
+        {
+          "name": "lepto-resize",
+          "maxWidth": 1200
+        }
+      ]
+    },
+    {
+      "glob": "*.jpg",
+      "use": [
+        {
+          "name": "lepto-resize",
+          "height": 100
+        },
+        {
+          "name": "lepto.jpeg",
+          "quality": 60
+        }
+      ]
+    },
+    {
+      "glob": "gui/gui-image.jpg",
+      "use": [
+        {
+          "name": "lepto.jpeg",
+          "quality": 58
+        }
+      ]
+    },
+    {
+      "glob": "gui/gui-tree.jpg",
+      "use": [
+        {
+          "name": "lepto.jpeg",
+          "quality": 30
+        }
+      ]
+    },
+    {
+      "glob": "gui/lepto-cli.jpg",
+      "use": [
+        {
+          "name": "lepto.jpeg",
+          "quality": 82
+        }
+      ]
+    }
+  ]
+}

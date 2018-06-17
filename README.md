@@ -226,9 +226,7 @@ runner.on('all', (data, event) => { /* When listening to 'all' events, the callb
 
 ### Lepto Build process
 
-I have not yet integrated test because I'm waiting to integrate a method that takes as argument a single buffer, and return multiples outputs with only a list of plugins without globs filters (in prevision of an integration to gulp). I thought it would be difficult to integrate tests with such an "independent" tool (it decides by itself to process files by watching the input directory).
-
-So there is only a build step for the GUI part that can be launched with the `npm start` command. It will watch for css and js files changes from the `gui/src/` directory and compiles them into `gui/dist/` with Babel and PostCSS.
+There is only a build step for the GUI part that can be launched with the `npm start` command. It will watch for css and js files changes from the `gui/src/` directory and compiles them into `gui/dist/` with Babel and PostCSS.
 
 Because you could ask yourself the question: I love React but I didn't used it for the GUI because I had planned to deal with many `contenteditable` elements that are terrible to work with React. The part of the is messy I admit it, I have to tidy up.
 

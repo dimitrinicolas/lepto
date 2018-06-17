@@ -1,11 +1,9 @@
 const fs = require('fs');
 const fse = require('fs-extra');
 
-const events = require('./events.js');
-
 let outputingData = null;
 
-const saveData = (output, file, data) => {
+const saveData = (output, file, data, eventsHandler) => {
   let dataContent = {};
   if (outputingData) {
     dataContent = outputingData;
@@ -24,7 +22,7 @@ const saveData = (output, file, data) => {
   }
   fse.outputFile(output, JSON.stringify(dataContent, null, 2), err => {
     if (err) {
-      events.dispatch('error', `Unable to save data json file ${output}`);
+      eventsHandler.dispatch('error', `Unable to save data json file ${output}`);
     }
   })
 };

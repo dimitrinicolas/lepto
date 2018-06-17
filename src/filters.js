@@ -20,10 +20,10 @@ const getPluginsList = (filters, path) => {
   return pluginsList;
 };
 
-const generateFilter = (opts, parentDir) => {
+const generateFilter = (opts, parentDir, eventsHandler) => {
   let res = {
     glob: [],
-    plugins: plugins.satinize(opts.use)
+    plugins: plugins.satinize(opts.use, eventsHandler)
   };
 
   const addParent = (glob) => {
@@ -44,10 +44,10 @@ const generateFilter = (opts, parentDir) => {
   return res;
 }
 
-const generate = (dir, filters=[]) => {
+const generate = (dir, filters=[], eventsHandler) => {
   let resList = [];
   for (let item of filters) {
-    resList.push(generateFilter(Object.assign({}, item), dir));
+    resList.push(generateFilter(Object.assign({}, item), dir, eventsHandler));
   }
   return resList;
 };

@@ -1,7 +1,5 @@
 const path = require('path');
 
-const events = require('./events.js');
-
 const nativePlugins = require('../plugins');
 
 const __defaultConfigProps = {
@@ -27,7 +25,7 @@ const resolverPlugin = (name) => {
   }
 }
 
-const satinize = (list) => {
+const satinize = (list, eventsHandler) => {
   const res = [];
 
   if (!Array.isArray(list)) {
@@ -37,7 +35,7 @@ const satinize = (list) => {
   for (let plugin of list) {
     let pluginRes = null;
     if (typeof plugin === 'function') {
-      events.dispatch('warn', {
+      eventsHandler.dispatch('warn', {
         msg: 'It is not recommended to use a function as a lepto plugins, functions cannot be overriden by another filter',
         callOnceId: 'plugin-as-a-function'
       });
@@ -60,7 +58,7 @@ const satinize = (list) => {
         });
       }
       else {
-        events.dispatch('error', `Invalid plugin format:`);
+        eventsHandler.dispatch('error', `Invalid plugin format:`);
         console.log(plugin);
       }
     }
