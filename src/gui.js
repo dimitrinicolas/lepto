@@ -16,7 +16,7 @@ let currentTree = [];
 
 let guiEventListeners = [];
 
-const eventsHandler = new EventsHandler;
+const eventsHandler = new EventsHandler();
 
 const init = (port, opts={}, runnerEvents) => {
   io = socketIO(parseInt(port) + 1);
@@ -156,5 +156,7 @@ module.exports = {
   configUpdate,
   treeUpdate,
   updateFinish,
-  on: eventsHandler.on
+  on: (name, func) => {
+    eventsHandler.on(name, func)
+  }
 };
