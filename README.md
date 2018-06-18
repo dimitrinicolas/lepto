@@ -2,21 +2,15 @@
 
 > Automated images Editing, Optimization and Analysis
 
-The main purpose of this tool is to **make the best images optimizations practices simple** to implement in your projects. This project is recent, so use it with care, I'm listening to all feedbacks (we can talk via [twitter](https://twitter.com/dimitrincls), don't follow me I never tweet).
+The main purpose of this tool is to **make the best images optimizations practices simple** to implement in your projects. This project is recent, so use it with care, I'm listening to all feedback (we can talk via [twitter](https://twitter.com/dimitrincls), don't follow me I never tweet).
 
-You give to lepto your input directory, the plugins and their options that you want to use, your output directory. Then lepto does his job.
+**What is the difference with [ImageMin](https://github.com/imagemin/imagemin)?** I think that if you deal with large applications, then go on ImageMin, but if you are building small static websites and you want to optimize your resources easily, then you could try lepto.
 
-**What is the difference with [ImageMin](https://github.com/imagemin/imagemin)?** I think that ImageMin and lepto are suitable for different project. If you deal with large applications, then go on ImageMin, but if you are building small static websites and you want to simply keep your assets directory structure, then you could try lepto.
+You give to lepto your input and output directories, the plugins you want to use and their options. Then lepto does his job, you keep your original files and the structure of the input directory.
 
 If you want to learn more about images optimizations, I recommend you the amazing [images.guide](https://images.guide/) by Addy Osmani.
 
-## Usage
-
-```console
-$ npm i -D lepto
-```
-
-### CLI / npm scripts (Recommended)
+## Get started with CLI / NPM scripts
 
 I recommend you to use lepto via [lepto-cli](https://github.com/dimitrinicolas/lepto-cli), so it can easily be integrated to your build process with npm scripts.
 
@@ -32,11 +26,13 @@ It will guide you to create a configuration file.
 
 [![lepto-cli](fixtures/readme/lepto-cli.jpg)](https://github.com/dimitrinicolas/lepto-cli)
 
-Check out [lepto-cli repository](https://github.com/dimitrinicolas/lepto-cli) for more informations.
+Check out [lepto-cli repository](https://github.com/dimitrinicolas/lepto-cli) for more information.
 
-### GUI
+> See below for Node.js API usage.
 
-You can access the GUI if you launched lepto from the CLI, by default at the address `http://localhost:4490`.
+## GUI
+
+You can access the GUI if you launched lepto from the CLI, by default at the address `http://localhost:4490`. You can change the port with the option `guiPort`.
 
 ![GUI tree view](fixtures/readme/gui-tree.jpg)
 
@@ -48,7 +44,6 @@ To save the changes and relaunch lepto's process, click on the Save button or pr
 
 ![GUI tree view](fixtures/readme/gui-image.jpg)
 
-> See below for Node.js API usage.
 
 ## Plugins
 
@@ -148,7 +143,7 @@ It use [`svgo`](https://www.npmjs.com/package/svgo), and his config follows the 
 
 * [`lepto-resize`](https://github.com/dimitrinicolas/lepto-resize) To resize and create retina alternatives
 * [`lepto-webp`](https://github.com/dimitrinicolas/lepto-webp) To create .webp alternatives
-* [`lepto-vibrant-color`](https://github.com/dimitrinicolas/lepto-vibrant-color) To collect the vibrant colors from your images using `node-vibrant` and save them inside your data json file
+* [`lepto-vibrant-color`](https://github.com/dimitrinicolas/lepto-vibrant-color) To collect the vibrant colors from your images using `node-vibrant` and save them inside your data json file. So you can set a **placeholder background color to your images** while they are loading.
 
 ## Config
 
@@ -171,6 +166,10 @@ Default config:
 Lepto watch files by default when launched with lepto-cli.
 
 ## Node.js API
+
+```console
+$ npm i -D lepto
+```
 
 You simply have to call `lepto()` by giving it your config.
 
@@ -215,7 +214,7 @@ runner.on('error', msg => {
 runner.on('processed-file', data => {
   /* deal with data */
 });
-runner.on('all', (data, event) => { /* When listening to 'all' events, the callback receive the event name as a seconde argument */
+runner.on('all', (data, event) => { /* When listening to 'all' events, the callback receive the event name as a second argument */
   if (typeof data.msg !== 'undefined') {
     console.log(`${event}: ${data.msg}`);
   }
@@ -224,7 +223,16 @@ runner.on('all', (data, event) => { /* When listening to 'all' events, the callb
 
 ## Contributing
 
+I really like to save people time. That's why I created this tool:
+
+* To help developers easily optimize their images
+* To make sites load faster
+
+So if you have any suggestion that could help people use this tool faster, tell me!
+
 ### Lepto Build process
+
+Run `npm test` for testing the tool.
 
 There is only a build step for the GUI part that can be launched with the `npm start` command. It will watch for css and js files changes from the `gui/src/` directory and compiles them into `gui/dist/` with Babel and PostCSS.
 
@@ -258,17 +266,18 @@ If the plugin is the first called, it will receive only one output, additional o
 
 A data object is shared between plugins during the process of files, his content will be saved to a json file choosed by the user.
 
-Example of lepto plugin:
+Because lepto plugins have to deal with multiples outputs Buffer and often with async process, I suggest you this model:
 ```js
 const plugin = (opts={}) => {
   return function plugin(input, fulfill, utils) {
-    let finish = -input.outputs.length + 1;
     const next = () => {
-      finish++;
-      if (finish > 0) {
+      finish--;
+      if (finish <= 0) {
         fulfill(input);
       }
     };
+
+    let finish = input.outputs.length;
     for (let i in input.outputs) {
       optimizer(input.outputs[i].buffer).then(function(i) {
         return function(buffer) {
