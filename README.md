@@ -4,7 +4,7 @@
   <a href="https://travis-ci.org/dimitrinicolas/lepto"><img src="https://travis-ci.org/dimitrinicolas/lepto.svg?branch=master" alt="Build Status"></a>
 </p>
 
-The main purpose of this tool is to **make the best image optimizations practices simple** to implement in your projects. This project is recent, so use it with care, I'm listening to all feedback (we can talk via [twitter](https://twitter.com/dimitrincls), don't follow me I never tweet).
+The main purpose of this tool is to automate image optimization and analysis. This project is recent, so use it with care, I'm listening to all feedback (we can talk via [twitter](https://twitter.com/dimitrincls), don't follow me I never tweet).
 
 **What is the difference with [ImageMin](https://github.com/imagemin/imagemin)?** I think that if you deal with large applications, then go on ImageMin, but if you are building small static websites and you want to optimize your resources easily, then you could try lepto.
 
