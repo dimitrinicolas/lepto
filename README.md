@@ -1,6 +1,8 @@
 ![Lepto: The best image optimizations practices made simple](fixtures/readme/lepto.jpg)
 
-<p align="center">[![Build Status](https://travis-ci.org/dimitrinicolas/lepto.svg?branch=master)](https://travis-ci.org/dimitrinicolas/lepto)</p>
+<p align="center">
+  <a href="https://travis-ci.org/dimitrinicolas/lepto"><img src="https://travis-ci.org/dimitrinicolas/lepto.svg?branch=master" alt="Build Status"></a>
+</p>
 
 The main purpose of this tool is to **make the best image optimizations practices simple** to implement in your projects. This project is recent, so use it with care, I'm listening to all feedback (we can talk via [twitter](https://twitter.com/dimitrincls), don't follow me I never tweet).
 
