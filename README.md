@@ -1,14 +1,16 @@
-# lepto ![Travis CI](https://img.shields.io/travis/dimitrinicolas/lepto.svg)
+![Lepto: The best image optimizations practices made simple](fixtures/readme/lepto.jpg)
 
-> Automated images Editing, Optimization and Analysis
+<p align="center">[![Build Status](https://travis-ci.org/dimitrinicolas/lepto.svg?branch=master)](https://travis-ci.org/dimitrinicolas/lepto)</p>
 
-The main purpose of this tool is to **make the best images optimizations practices simple** to implement in your projects. This project is recent, so use it with care, I'm listening to all feedback (we can talk via [twitter](https://twitter.com/dimitrincls), don't follow me I never tweet).
+The main purpose of this tool is to **make the best image optimizations practices simple** to implement in your projects. This project is recent, so use it with care, I'm listening to all feedback (we can talk via [twitter](https://twitter.com/dimitrincls), don't follow me I never tweet).
 
 **What is the difference with [ImageMin](https://github.com/imagemin/imagemin)?** I think that if you deal with large applications, then go on ImageMin, but if you are building small static websites and you want to optimize your resources easily, then you could try lepto.
 
-You give to lepto your input and output directories, the plugins you want to use and their options. Then lepto does his job, you keep your original files and the structure of the input directory.
+You give to lepto your input and output directories, the plugins you want to use and their options. Then lepto does his job, you keep your original files and the structure of the input directory. Some plugins can even collect data (like primary colors) from your images and save them in a json file.
 
-If you want to learn more about images optimizations, I recommend you the amazing [images.guide](https://images.guide/) by Addy Osmani.
+If you want to learn more about image optimizations, I recommend you the amazing [image.guide](https://image.guide/) by Addy Osmani.
+
+Design and illustrations by [Dorian Colin](https://doriancolin.fr/).
 
 ## Get started with CLI / NPM scripts
 
@@ -33,8 +35,6 @@ Check out [lepto-cli repository](https://github.com/dimitrinicolas/lepto-cli) fo
 ## GUI
 
 You can access the GUI if you launched lepto from the CLI, by default at the address `http://localhost:4490`. You can change the port with the option `guiPort`.
-
-![GUI tree view](fixtures/readme/gui-tree.jpg)
 
 The purpose of the GUI is to add more precise quality settings to files one by one. You can easily play with the quality slider and see the result at the same time, so you can choose the most suitable option for each of your resources.
 
@@ -122,7 +122,7 @@ It use [`node-pngquant`](https://www.npmjs.com/package/pngquant). Default config
 {
   "quality": "70-80", /* From 0 (worst) to 100 (better) */
   "colors": 256, /* From 2 to 256 */
-  "speed": 3 /* From 1 (slower but lighter) to 10 (faster but heavier) */
+  "speed": 3 /* From 1 (faster but heavier) to 10 (slower but lighter) */
 }
 ```
 
