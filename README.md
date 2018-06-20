@@ -10,7 +10,7 @@ The main purpose of this tool is to automate image optimization and analysis. Th
 
 You give to lepto your input and output directories, the plugins you want to use and their options. Then lepto does his job, you keep your original files and the structure of the input directory. Some plugins can even collect data (like primary colors) from your images and save them in a json file.
 
-If you want to learn more about image optimizations, I recommend you the amazing [image.guide](https://image.guide/) by Addy Osmani.
+If you want to learn more about image optimizations, I recommend you the amazing [images.guide](https://images.guide/) by Addy Osmani.
 
 Design and illustrations by [Dorian Colin](https://doriancolin.fr/).
 
