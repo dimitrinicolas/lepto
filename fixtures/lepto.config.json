@@ -8,7 +8,7 @@
       "use": [
         {
           "name": "lepto.jpeg",
-          "quality": 80
+          "quality": 60
         },
         {
           "name": "lepto-resize",
@@ -26,33 +26,6 @@
         {
           "name": "lepto.jpeg",
           "quality": 60
-        }
-      ]
-    },
-    {
-      "glob": "gui/gui-image.jpg",
-      "use": [
-        {
-          "name": "lepto.jpeg",
-          "quality": 58
-        }
-      ]
-    },
-    {
-      "glob": "gui/gui-tree.jpg",
-      "use": [
-        {
-          "name": "lepto.jpeg",
-          "quality": 30
-        }
-      ]
-    },
-    {
-      "glob": "gui/lepto-cli.jpg",
-      "use": [
-        {
-          "name": "lepto.jpeg",
-          "quality": 82
         }
       ]
     }

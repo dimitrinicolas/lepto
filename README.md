@@ -1,4 +1,4 @@
-![Lepto: The best image optimizations practices made simple](fixtures/readme/lepto.jpg)
+[![Lepto: The best image optimizations practices made simple](fixtures/readme/lepto.jpg)](#get-started-with-cli--npm-scripts)
 
 <p align="center">
   <a href="https://travis-ci.org/dimitrinicolas/lepto"><img src="https://travis-ci.org/dimitrinicolas/lepto.svg?branch=master" alt="Build Status"></a>
@@ -152,14 +152,21 @@ It use [`svgo`](https://www.npmjs.com/package/svgo), and his config follows the 
 Default config:
 ```js
 {
+  "input": null, /* Input directory */
+  "output": null, /* Output directory */
+  "filters": [], /* The list of filters associated with their plugins */
+
+  "ignore": null, /* An array or an unique glob string */
   "watch": false, /* Watch for input file changes */
   "watchConfig": false, /* Watch for config file change to automatically update it */
   "followUnlink": false, /* Remove output files when the source file is deleted from the input directory */
   "processAll": true, /* Process all files on launch, recommended if followUnlink activated */
+  "logLevel": "all", /* all 0-3 (0: silent, 1: only errors, ..., 3: all) */
+  
   "gui": true, /* The GUI can be disabled */
   "openGui": false, /* Automatically open the GUI in your default browser */
   "guiPort": "4490", /* GUI port */
-  "logLevel": "all", /* all 0-3 (0: silent, 1: only errors, ..., 3: all) */
+
   "dataOutput": null, /* Path of your data json file, eg: output/data.json */
   "dataRootPath": null /* Relative path removed from file names inside the data json file */
 }

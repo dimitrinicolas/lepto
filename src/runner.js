@@ -56,20 +56,19 @@ class Runner {
                 });
               }
               else if (!configSet.success) {
+                gui.updateFinish();
                 this.eventsHandler.dispatch('warn', {
                   msg: `Unable to update config from GUI: ${configSet.msg}`
                 });
               }
             }
             else {
+              gui.updateFinish();
               this.eventsHandler.dispatch('info', {
                 msg: 'Config updated from GUI, but no difference found'
               });
             }
           });
-          if (this.config.openGui) {
-            // TODO open browser
-          }
         }
         else {
           this.eventsHandler.dispatch('error', `You can only use lepto GUI by cli with a json config file`);
@@ -116,9 +115,18 @@ class Runner {
       this.watcher.close();
     }
     if (this.config.watch) {
+      const ignore = [this.globAllOutput];
+      if (Array.isArray(this.config.ignore)) {
+        for (let item of this.config.ignore) {
+          ignore.push(item);
+        }
+      }
+      else if (typeof this.config.ignore !== 'undefined') {
+        ignore.push(this.config.ignore);
+      }
       this.watcher = chokidar.watch(this.globAllInput, {
         ignoreInitial: true,
-        ignored: this.globAllOutput
+        ignored: ignore
       }).on('all', this.handleWatchEvent.bind(this));
     }
 
@@ -299,8 +307,17 @@ class Runner {
   }
 
   processAll() {
+    const ignore = [this.globAllOutput];
+    if (Array.isArray(this.config.ignore)) {
+      for (let item of this.config.ignore) {
+        ignore.push(item);
+      }
+    }
+    else if (typeof this.config.ignore !== 'undefined') {
+      ignore.push(this.config.ignore);
+    }
     fastGlob(this.globAllInput, {
-      ignore: [this.globAllOutput]
+      ignore: ignore
     }).then((entries) => {
       this.currentTree = entries;
       this.processList(entries);
@@ -338,7 +355,7 @@ class Runner {
     }
     if (Array.isArray(this.unlinkFollowers[filePath])) {
       for (let output of this.unlinkFollowers[filePath]) {
-        fse.remove(output, function(output) {
+        fse.remove(output, ((output) => {
           return (err) => {
             if (err) {
               this.eventsHandler.dispatch('error', `Unable to follow unlink of ${output}`);
@@ -349,7 +366,7 @@ class Runner {
               });
             }
           };
-        }(output));
+        })(output));
       }
     }
   }
