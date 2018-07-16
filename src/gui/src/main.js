@@ -1,4 +1,4 @@
-import focusVisible from 'focus-visible';
+import 'focus-visible';
 import Magnifier from 'magnifier';
 import smoothScroll from './scripts/smoothscroll.js';
 
@@ -16,17 +16,16 @@ let selectedFileEl;
 let socket;
 
 let selectedFile;
-let selectedFilter;
 
-const preventPre = (pre) => {
-  pre.addEventListener('paste', function(event) {
+const preventPre = pre => {
+  pre.addEventListener('paste', function (event) {
     event.preventDefault();
     var text = event.clipboardData.getData('text/plain');
     document.execCommand('insertHTML', false, text);
   });
 }
 
-const cleanArray = (array) => {
+const cleanArray = array => {
   var res = [];
   for (let item of array) {
     if (item !== '') {
@@ -590,7 +589,6 @@ const onload = () => {
     socket.on('config-update', (config) => {
       currentConfig = config;
       selectedFile = null;
-      selectedFilter = null;
       updateConfigDOM();
     });
     socket.on('tree-update', (tree) => {

@@ -17,7 +17,7 @@
       ]
     },
     {
-      "glob": "*.jpg",
+      "glob": "**/*.jpg",
       "use": [
         {
           "name": "lepto-resize",
@@ -25,6 +25,15 @@
         },
         {
           "name": "lepto.jpeg",
+          "quality": 60
+        }
+      ]
+    },
+    {
+      "glob": "**/*.png",
+      "use": [
+        {
+          "name": "lepto.png",
           "quality": 60
         }
       ]

@@ -1,7 +1,7 @@
 const sharp = require('sharp');
 
-const jpeg = (opts={}) => {
-  const quality = typeof opts.quality !== 'undefined' ? Math.max(1, Math.min(parseInt(opts.quality), 100)) : 80;
+const jpegPlugin = (opts = {}) => {
+  const quality = typeof opts.quality !== 'undefined' ? Math.max(1, Math.min(parseInt(opts.quality, 10), 100)) : 80;
   const progressive = typeof opts.progressive !== 'undefined' ? opts.progressive : true;
 
   return function jpeg(input, fulfill, utils) {
@@ -14,10 +14,10 @@ const jpeg = (opts={}) => {
     };
 
     finish = -input.outputs.length + 1;
-    for (let i in input.outputs) {
+    for (const i in input.outputs) {
       if (utils.mime(input.outputs[i].buffer) === 'image/jpeg') {
         if (typeof opts.forceExt === 'string') {
-          input.outputs[i].filename = utils.base(input.outputs[i].filename) + '.' + opts.forceExt;
+          input.outputs[i].filename = `${utils.base(input.outputs[i].filename)}.${opts.forceExt}`;
         }
         sharp(input.outputs[i].buffer)
           .jpeg({
@@ -25,21 +25,20 @@ const jpeg = (opts={}) => {
             progressive
           })
           .toBuffer()
-          .then(function(i) {
-            return function(buffer) {
-              if (buffer.length < input.outputs[i].buffer.length) {
-                input.outputs[i].buffer = buffer;
+          .then(function sharpThen(j) {
+            return function sharpSuccess(buffer) {
+              if (buffer.length < input.outputs[j].buffer.length) {
+                input.outputs[j].buffer = buffer;
               }
               next();
             };
           }(i))
           .catch(next);
-      }
-      else {
+      } else {
         next();
       }
     }
   };
 };
 
-module.exports = jpeg;
+module.exports = jpegPlugin;

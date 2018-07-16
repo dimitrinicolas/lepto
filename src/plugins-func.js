@@ -1,6 +1,6 @@
 const path = require('path');
 
-const nativePlugins = require('../plugins');
+const nativePlugins = require('./plugins');
 
 const __defaultConfigProps = {
   name: '',
@@ -8,8 +8,7 @@ const __defaultConfigProps = {
   __func: null
 };
 
-const resolverPlugin = (name) => {
-  const pluginName = name;
+const resolverPlugin = name => {
   if (name.lastIndexOf('#') !== -1) {
     name = name.substr(0, name.lastIndexOf('#'));
   }
@@ -17,13 +16,11 @@ const resolverPlugin = (name) => {
     name = name.substr('lepto.'.length, name.length);
     return nativePlugins[name];
   }
-  else if (name.indexOf('/') !== -1) {
+  if (name.indexOf('/') !== -1) {
     return require(path.resolve(process.cwd(), name));
   }
-  else {
-    return require(path.join(process.cwd(), '/node_modules/' + name));
-  }
-}
+  return require(path.join(process.cwd(), `/node_modules/${name}`));
+};
 
 const satinize = (list, eventsHandler) => {
   const res = [];
@@ -32,11 +29,12 @@ const satinize = (list, eventsHandler) => {
     return res;
   }
 
-  for (let plugin of list) {
+  for (const plugin of list) {
     let pluginRes = null;
     if (typeof plugin === 'function') {
       eventsHandler.dispatch('warn', {
-        msg: 'It is not recommended to use a function as a lepto plugins, functions cannot be overriden by another filter',
+        msg:
+          'It is not recommended to use a function as a lepto plugins, functions cannot be overriden by another filter',
         callOnceId: 'plugin-as-a-function'
       });
       pluginRes = Object.assign({}, __defaultConfigProps, {
@@ -44,23 +42,18 @@ const satinize = (list, eventsHandler) => {
         __invoked: true,
         __func: plugin
       });
-    }
-    else if (typeof plugin === 'string') {
+    } else if (typeof plugin === 'string') {
       pluginRes = Object.assign({}, __defaultConfigProps, {
         name: plugin,
         __func: resolverPlugin(plugin)
       });
-    }
-    else {
-      if (typeof plugin.name === 'string') {
-        pluginRes = Object.assign({}, __defaultConfigProps, plugin, {
-          __func: resolverPlugin(plugin.name)
-        });
-      }
-      else {
-        eventsHandler.dispatch('error', `Invalid plugin format:`);
-        console.log(plugin);
-      }
+    } else if (typeof plugin.name === 'string') {
+      pluginRes = Object.assign({}, __defaultConfigProps, plugin, {
+        __func: resolverPlugin(plugin.name)
+      });
+    } else {
+      eventsHandler.dispatch('error', 'Invalid plugin format:');
+      console.log(plugin);
     }
     if (pluginRes && !pluginRes.disabled) {
       if (!pluginRes.__invoked) {
@@ -68,8 +61,7 @@ const satinize = (list, eventsHandler) => {
           pluginRes.__func = (input, fulfill) => {
             fulfill(input);
           };
-        }
-        else {
+        } else {
           Object.assign(pluginRes, {
             __func: pluginRes.__func(pluginRes)
           });
@@ -80,7 +72,7 @@ const satinize = (list, eventsHandler) => {
   }
 
   return res;
-}
+};
 
 const merge = (mainPlugins, newPlugins) => {
   if (!Array.isArray(mainPlugins)) {
@@ -91,12 +83,12 @@ const merge = (mainPlugins, newPlugins) => {
   }
 
   const res = [];
-  for (let el of mainPlugins) {
+  for (const el of mainPlugins) {
     res.push(el);
   }
-  for (let el of newPlugins) {
+  for (const el of newPlugins) {
     let index = -1;
-    for (let i in res) {
+    for (const i in res) {
       if (el.name !== null && res[i].name === el.name) {
         index = i;
         break;
@@ -104,8 +96,7 @@ const merge = (mainPlugins, newPlugins) => {
     }
     if (index === -1) {
       res.push(el);
-    }
-    else {
+    } else {
       res[index] = el;
     }
   }

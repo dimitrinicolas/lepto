@@ -1,15 +1,15 @@
 const minimatch = require('minimatch');
 const path = require('path');
 
-const plugins = require('./plugins.js');
+const plugins = require('./plugins-func.js');
 
-const getPluginsList = (filters, path) => {
+const getPluginsList = (filters, rootPath) => {
   let pluginsList = [];
-  for (let filterItem of filters) {
+  for (const filterItem of filters) {
     if (typeof filterItem !== 'undefined') {
-      for (let glob of filterItem.glob) {
-        if (minimatch(path, glob)) {
-          for (let plugin of filterItem.plugins) {
+      for (const glob of filterItem.glob) {
+        if (minimatch(rootPath, glob)) {
+          for (const plugin of filterItem.plugins) {
             pluginsList = plugins.merge(pluginsList, [plugin]);
           }
           break;
@@ -21,32 +21,30 @@ const getPluginsList = (filters, path) => {
 };
 
 const generateFilter = (opts, parentDir, eventsHandler) => {
-  let res = {
+  const res = {
     glob: [],
     plugins: plugins.satinize(opts.use, eventsHandler)
   };
 
-  const addParent = (glob) => {
-    return (typeof parentDir !== 'undefined' ? parentDir + '/' : '') + glob;
+  const addParent = glob => {
+    return (typeof parentDir !== 'undefined' ? `${parentDir}/` : '') + glob;
   };
 
   const dirStr = path.resolve(addParent(opts.dir || ''));
   if (Array.isArray(opts.glob)) {
     res.glob = opts.glob.map(str => addParent(str));
-  }
-  else if (typeof opts.glob === 'string') {
+  } else if (typeof opts.glob === 'string') {
     res.glob = [addParent(opts.glob)];
-  }
-  else {
-    res.glob = [dirStr + '/**/*.*'];
+  } else {
+    res.glob = [`${dirStr}/**/*.*`];
   }
 
   return res;
-}
+};
 
-const generate = (dir, filters=[], eventsHandler) => {
-  let resList = [];
-  for (let item of filters) {
+const generate = (dir, filters = [], eventsHandler) => {
+  const resList = [];
+  for (const item of filters) {
     resList.push(generateFilter(Object.assign({}, item), dir, eventsHandler));
   }
   return resList;

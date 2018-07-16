@@ -1,30 +1,28 @@
 module.exports = {
   plugins: [
-    require('./plugins/postcss-preimport.js'),
+    require('./postcss-plugins/postcss-preimport.js')({
+      glob: 'src/components/**/*.css'
+    }),
     require('postcss-import'),
     require('postcss-nested'),
     require('postcss-inline-media'),
-    require('./plugins/postcss-plugin.js'),
+    require('./postcss-plugins/postcss-font-shortcut.js'),
     require('postcss-simple-vars'),
-    require('postcss-calc'),
+    require('postcss-calc')({
+      preserve: false
+    }),
     require('postcss-size'),
     require('postcss-axis'),
     require('postcss-position'),
-    require('autoprefixer'),
-    require('postcss-pxtorem'),
+    require('autoprefixer')({
+      browsers: '>0.1%'
+    }),
+    require('postcss-pxtorem')({
+      replace: false
+    }),
     require('postcss-color-function'),
     require('css-mqpacker')({
       sort: require('sort-css-media-queries').desktopFirst
     })
-  ],
-  'local-plugins': true,
-  'postcss-calc': {
-    preserve: false
-  },
-  autoprefixer: {
-    browsers: '>0.1%'
-  },
-  'postcss-pxtorem': {
-    'replace': false
-  }
+  ]
 };

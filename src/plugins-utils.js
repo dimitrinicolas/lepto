@@ -5,14 +5,14 @@ const path = require('path');
 
 module.exports = {
   size: imageSize,
-  sharp: sharp,
-  mime: (buffer) => {
+  sharp,
+  mime: buffer => {
     return fileType(buffer).mime;
   },
-  base: (filename) => {
+  base: filename => {
     return path.basename(filename, path.extname(filename));
   },
-  ext: (filename) => {
+  ext: filename => {
     return path.extname(filename).slice(1);
   }
 };

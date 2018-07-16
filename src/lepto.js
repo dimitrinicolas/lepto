@@ -1,4 +1,4 @@
-const plugins = require('../plugins');
+const plugins = require('./plugins');
 const Runner = require('./runner.js');
 
 const lepto = (options, params) => {

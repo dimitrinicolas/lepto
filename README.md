@@ -111,6 +111,7 @@ Lepto carries some built-in plugins, their name is prefixed by `"lepto."`. These
 It use [`sharp`](https://www.npmjs.com/package/sharp). Default config:
 ```js
 {
+  "name": "lepto.jpeg",
   "quality": 80, /* From 1 to 100 */
   "progressive": true,
   "forceExt": null /* You can force the same extension for all jpgs file, eg: replace all .jpeg images by setting forceExt to "jpg" */
@@ -122,6 +123,7 @@ It use [`sharp`](https://www.npmjs.com/package/sharp). Default config:
 It use [`node-pngquant`](https://www.npmjs.com/package/pngquant). Default config:
 ```js
 {
+  "name": "lepto.png",
   "quality": "70-80", /* From 0 (worst) to 100 (better) */
   "colors": 256, /* From 2 to 256 */
   "speed": 3 /* From 1 (faster but heavier) to 10 (slower but lighter) */
@@ -133,6 +135,7 @@ It use [`node-pngquant`](https://www.npmjs.com/package/pngquant). Default config
 It use ImageMin's implementation of gifsicle: [`gifsicle`](https://www.npmjs.com/package/gifsicle). Default config:
 ```js
 {
+  "name": "lepto.gif",
   "colors": 256 /* From 2 to 256 */
 }
 ```
@@ -277,8 +280,8 @@ A data object is shared between plugins during the process of files, his content
 
 Because lepto plugins have to deal with multiples outputs Buffer and often with async process, I suggest you this model:
 ```js
-const plugin = (opts={}) => {
-  return function plugin(input, fulfill, utils) {
+const namePlugin = (opts={}) => {
+  return function name(input, fulfill, utils) {
     const next = () => {
       finish--;
       if (finish <= 0) {
@@ -287,18 +290,20 @@ const plugin = (opts={}) => {
     };
 
     let finish = input.outputs.length;
-    for (let i in input.outputs) {
-      optimizer(input.outputs[i].buffer).then(function(i) {
-        return function(buffer) {
-          input.outputs[i].buffer = buffer;
-          next();
-        };
-      }(i));
+    for (const i in input.outputs) {
+      if (Object.prototype.hasOwnProperty.call(input.outputs, i)) {
+        optimizer(input.outputs[i].buffer).then(function optimizerThen(i) {
+          return function optimizerSuccess(buffer) {
+            input.outputs[i].buffer = buffer;
+            next();
+          };
+        }(i));
+      }
     }
   };
 };
 
-module.exports = plugin;
+module.exports = namePlugin;
 ```
 
 Utils functions:

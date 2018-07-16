@@ -1,7 +1,7 @@
 const PngQuant = require('pngquant');
 
-const png = (opts={}) => {
-  const colors = typeof opts.colors !== 'undefined' ? Math.max(2, Math.min(parseInt(opts.colors), 256)) : 256;
+const pngPlugin = (opts = {}) => {
+  const colors = typeof opts.colors !== 'undefined' ? Math.max(2, Math.min(parseInt(opts.colors, 10), 256)) : 256;
   const quality = typeof opts.quality !== 'undefined' ? opts.quality : '70-80';
   const speed = typeof opts.speed !== 'undefined' ? opts.speed : 3;
   const args = [colors, '--nofs', '--quality', quality, '--speed', speed];
@@ -16,17 +16,17 @@ const png = (opts={}) => {
     };
 
     finish = -input.outputs.length + 1;
-    for (let i in input.outputs) {
+    for (const i in input.outputs) {
       if (utils.mime(input.outputs[i].buffer) === 'image/png') {
         const myPngQuanter = new PngQuant(args);
 
         const chunks = [];
-        myPngQuanter.on('error', function(err) {
+        myPngQuanter.on('error', function onPngQuanterError(err) {
           console.log('err', err);
           next();
-        }).on('data', function(chunk) {
+        }).on('data', function onPngQuanterData(chunk) {
           chunks.push(chunk);
-        }).on('end', function() {
+        }).on('end', function onPngQuanterEnd() {
           const buffer = Buffer.concat(chunks);
           if (buffer.length < input.outputs[i].buffer.length) {
             input.outputs[i].buffer = buffer;
@@ -34,12 +34,11 @@ const png = (opts={}) => {
           next();
         });
         myPngQuanter.end(input.outputs[i].buffer);
-      }
-      else {
+      } else {
         next();
       }
     }
   };
 };
 
-module.exports = png;
+module.exports = pngPlugin;

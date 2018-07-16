@@ -1,10 +1,10 @@
 import test from 'ava';
 
-import lepto from './';
-import beautifier from './src/beautifier.js';
-import EventsHandler from './src/events-handler.js';
-import pluginsUtils from './src/plugins-utils.js';
-import plugins from './src/plugins.js';
+import lepto from '..';
+import beautifier from '../src/beautifier.js';
+import EventsHandler from '../src/events-handler.js';
+import pluginsUtils from '../src/plugins-utils.js';
+import plugins from '../src/plugins-func.js';
 
 const config = {
   input: 'fixtures/input',
@@ -14,7 +14,7 @@ const config = {
 /* lepto */
 
 test('Call with no argument', t => {
-  lepto().on('error', msg => {
+  lepto().on('error', () => {
     t.pass();
   });
 });
@@ -23,7 +23,7 @@ test('Same input and output', t => {
   lepto({
     input: config.input,
     output: config.input
-  }).on('error', msg => {
+  }).on('error', () => {
     t.pass();
   });
 });
