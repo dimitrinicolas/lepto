@@ -1,4 +1,6 @@
 input:not(.range) {
+  width: 100%;
+  max-width: 220px;
   padding: 7px 8px;
   font: mono regular 15px;
   color: white;

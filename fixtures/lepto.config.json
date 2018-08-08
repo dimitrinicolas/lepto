@@ -1,31 +1,14 @@
 {
   "input": "fixtures/input",
-  "output": "fixtures/output",
+  "output": "fixtures/input/output",
   "watch": true,
   "filters": [
-    {
-      "glob": "**/*.*",
-      "use": [
-        {
-          "name": "lepto.jpeg",
-          "quality": 60
-        },
-        {
-          "name": "lepto-resize",
-          "maxWidth": 1200
-        }
-      ]
-    },
     {
       "glob": "**/*.jpg",
       "use": [
         {
-          "name": "lepto-resize",
-          "height": 100
-        },
-        {
           "name": "lepto.jpeg",
-          "quality": 60
+          "quality": 80
         }
       ]
     },

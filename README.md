@@ -16,7 +16,7 @@ Design and illustrations by [Dorian Colin](https://doriancolin.fr/).
 
 ## Get started with CLI / NPM scripts
 
-You can follow this Get-started Medium article: [Learn How to Automate your Images Optimization Process with Lepto](https://medium.com/@dnicolas/learn-how-to-automate-your-images-optimization-process-with-lepto-ad2cf89e2a31). 
+You can follow this Get-started dev.to article: [Learn How to Automate your Images Optimization Process with Lepto](https://dev.to/dimitrinicolas/learn-how-to-automate-your-image-optimization-process-with-lepto-890). 
 
 I recommend you to use lepto via [lepto-cli](https://github.com/dimitrinicolas/lepto-cli), so it can easily be integrated to your build process with npm scripts.
 

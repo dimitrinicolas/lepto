@@ -30,6 +30,7 @@ module.exports = {
     'import/no-unresolved': 0,
     'import/no-dynamic-require': 0,
     'import/no-extraneous-dependencies': 0,
-    'import/extensions': ['warn', 'ignorePackages']
+    'import/extensions': ['warn', 'ignorePackages'],
+    'no-use-before-define': 0
   }
 };

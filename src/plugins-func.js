@@ -2,24 +2,46 @@ const path = require('path');
 
 const nativePlugins = require('./plugins');
 
-const __defaultConfigProps = {
+const DEFAULT_CONFIG_PROPS = {
   name: '',
   disabled: false,
   __func: null
 };
 
-const resolverPlugin = name => {
+const resolverPlugin = (name, eventsHandler) => {
   if (name.lastIndexOf('#') !== -1) {
     name = name.substr(0, name.lastIndexOf('#'));
   }
   if (name.indexOf('lepto.') === 0) {
-    name = name.substr('lepto.'.length, name.length);
-    return nativePlugins[name];
+    const plugin = name.substr('lepto.'.length, name.length);
+    if (typeof nativePlugins[plugin] === 'function') {
+      return nativePlugins[plugin];
+    }
+    eventsHandler.dispatch(
+      'error',
+      `Built-in plugin "${name}" not found, maybe you are looking for "lepto-${plugin}",`
+      + ' see https://github.com/leptojs/lepto#built-in-plugins Lepto will run without.'
+    );
+    return null;
   }
-  if (name.indexOf('/') !== -1) {
-    return require(path.resolve(process.cwd(), name));
+  const pluginPath = name.indexOf('/') !== -1 ? name : `/node_modules/${name}`;
+  try {
+    const plugin = require(path.join(process.cwd(), pluginPath));
+    if (typeof plugin === 'function') {
+      return plugin;
+    }
+    eventsHandler.dispatch(
+      'error',
+      `Plugin "${name}" is not a function, see https://github.com/leptojs/lepto#built-in-plugins. Lepto will run without.`
+    );
+    return null;
+  } catch (err) {
+    eventsHandler.dispatch(
+      'error',
+      `Plugin "${name}" not found, see https://github.com/leptojs/lepto#built-in-plugins. Lepto will run without.`
+    );
+    return null;
   }
-  return require(path.join(process.cwd(), `/node_modules/${name}`));
 };
 
 const satinize = (list, eventsHandler) => {
@@ -37,19 +59,19 @@ const satinize = (list, eventsHandler) => {
           'It is not recommended to use a function as a lepto plugins, functions cannot be overriden by another filter',
         callOnceId: 'plugin-as-a-function'
       });
-      pluginRes = Object.assign({}, __defaultConfigProps, {
+      pluginRes = Object.assign({}, DEFAULT_CONFIG_PROPS, {
         name: null,
         __invoked: true,
         __func: plugin
       });
     } else if (typeof plugin === 'string') {
-      pluginRes = Object.assign({}, __defaultConfigProps, {
+      pluginRes = Object.assign({}, DEFAULT_CONFIG_PROPS, {
         name: plugin,
-        __func: resolverPlugin(plugin)
+        __func: resolverPlugin(plugin, eventsHandler)
       });
     } else if (typeof plugin.name === 'string') {
-      pluginRes = Object.assign({}, __defaultConfigProps, plugin, {
-        __func: resolverPlugin(plugin.name)
+      pluginRes = Object.assign({}, DEFAULT_CONFIG_PROPS, plugin, {
+        __func: resolverPlugin(plugin.name, eventsHandler)
       });
     } else {
       eventsHandler.dispatch('error', 'Invalid plugin format:');

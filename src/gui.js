@@ -31,7 +31,7 @@ const init = (port, opts = {}, runnerEvents) => {
   http.createServer(function httpRequest(request, response) {
     if (request.url === '/') {
       const template = fs.readFileSync(
-        path.resolve(__dirname, '../gui/index.html'),
+        path.resolve(__dirname, './gui/index.html'),
         'utf-8'
       );
       response.writeHeader(200, { 'Content-Type': 'text/html' });
@@ -39,7 +39,7 @@ const init = (port, opts = {}, runnerEvents) => {
       response.end();
     } else if (request.url === '/dist/style.css') {
       const template = fs.readFileSync(
-        path.resolve(__dirname, '../gui/dist/style.css'),
+        path.resolve(__dirname, './gui/dist/style.css'),
         'utf-8'
       );
       response.writeHeader(200, { 'Content-Type': 'text/css' });
@@ -47,7 +47,7 @@ const init = (port, opts = {}, runnerEvents) => {
       response.end();
     } else if (request.url === '/dist/script.js') {
       const template = fs.readFileSync(
-        path.resolve(__dirname, `../gui${request.url}`),
+        path.resolve(__dirname, `./gui${request.url}`),
         'utf-8'
       );
       response.writeHeader(200, { 'Content-Type': 'application/javascript' });

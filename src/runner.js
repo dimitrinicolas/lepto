@@ -326,8 +326,12 @@ class Runner {
   }
 
   updateGUITree() {
+    const exclusion = [
+      new RegExp(`${path.resolve(this.config.output)}/(.*)?`)
+    ];
     const tree = dirTree(path.resolve(this.config.input), {
-      extensions: this._extensions
+      extensions: this._extensions,
+      exclude: exclusion
     });
     if (tree) {
       gui.treeUpdate(this.relativeTree(tree).children);
