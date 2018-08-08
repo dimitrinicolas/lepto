@@ -1,7 +1,7 @@
 [![Lepto: The best image optimizations practices made simple](fixtures/readme/lepto.jpg)](#get-started-with-cli--npm-scripts)
 
 <p align="center">
-  <a href="https://travis-ci.org/dimitrinicolas/lepto"><img src="https://travis-ci.org/dimitrinicolas/lepto.svg?branch=master" alt="Build Status"></a>
+  <a href="https://travis-ci.org/dimitrinicolas/lepto"><img src="https://travis-ci.org/leptojs/lepto.svg?branch=master" alt="Build Status"></a>
 </p>
 
 The main purpose of this tool is to automate image optimization and analysis. This project is recent, so use it with care, I'm listening to all feedback (we can talk via [twitter](https://twitter.com/dimitrincls), don't follow me I never tweet).
