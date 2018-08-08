@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<title>lepto plugins manager</title>
+		<link rel="stylesheet" href="dist/style.css">
+	</head>
+	<body>
+		<div class="page">
+			<div class="page__wrap page__wrap--split">
+        <div class="page__col">
+          <h1 class="title">lepto plugins manager</h1>
+          <h2 class="title">input: <input id="config.input" type="text" spellcheck="false"></h2>
+          <h2 class="title">output: <input id="config.output" type="text" spellcheck="false"></h2>
+          <div class="tree"></div>
+        </div>
+        <div class="page__col">
+          <h1 class="title">filters</h1>
+          <button class="btn" type="button" id="saveConfigBtn">Save config <span class="btn__cmd">⌘</span>S</button>
+          <div class="filters"></div>
+          <button class="btn" type="button" id="addFilterBtn">Add a filter</button>
+  			</div>
+      </div>
+		</div>
+    <div class="page page--bottom">
+      <div class="page__wrap">
+        <h1 class="title">Optimize file</h1>
+        <div id="selectedFile">Select a file in the tree</div>
+      </div>
+    </div>
+    <script src="dist/script.js"></script>
+	</body>
+</html>

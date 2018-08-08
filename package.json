@@ -43,6 +43,7 @@
     }
   },
   "scripts": {
+    "publish": "clean-publish --files fixtures",
     "style:build": "postcss --config src/gui/build/postcss.config.js -o src/gui/dist/style.css src/gui/src/main.css",
     "script:build": "webpack src/gui/src/main.js --output-path='./src/gui/dist/' --output-filename='script.js' --config src/gui/build/webpack.config.js",
     "browser-sync": "browser-sync start --config src/gui/build/bs.config.js",
@@ -76,6 +77,7 @@
     "babel-eslint": "^8.2.6",
     "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.7.0",
+    "clean-publish": "^1.0.9",
     "css-mqpacker": "^7.0.0",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "^17.0.0",

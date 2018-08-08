@@ -1,0 +1,69 @@
+.btn {
+
+  display: inline-block;
+
+  margin: 2px 0;
+  padding: 0.5em 1em;
+
+  text-align: center;
+  text-decoration: none;
+  color: white;
+
+  cursor: pointer;
+  background-color: $primary;
+  border-radius: 4px;
+  outline: none;
+  transition: .1s;
+
+}
+.btn::-moz-focus-inner {
+  border: none;
+}
+.btn:not(.btn--disabled):focus,
+.btn:not(.btn--disabled):hover {
+  color: white;
+  background-color: color($primary lightness(+10%));
+}
+.btn:not(.btn--disabled):focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color($primary lightness(+35%)),
+    0 0 0 1.5px color($primary lightness(+35%));
+}
+.btn:not(.btn--disabled):active,
+.btn:not(.btn--disabled):focus:active,
+.btn:not(.btn--disabled):hover:active {
+  color: white;
+  background-color: $primary;
+}
+.js-focus-visible .btn:not(.btn--disabled):focus:not(.focus-visible) {
+  box-shadow: none;
+}
+
+.btn.btn--disabled {
+  background: $light-grey;
+  color: color($grey blackness(+30%));
+  cursor: default;
+}
+
+.btn__cmd {
+  display: inline-block;
+  transform: translateY(1px);
+}
+
+.btn--invisible {
+  margin-y: 4px;
+  margin-x: -5px;
+  color: color($primary lightness(+30%));
+}
+.btn--invisible,
+.btn.btn--invisible:not(.btn--disabled):focus,
+.btn.btn--invisible:not(.btn--disabled):hover {
+  background: transparent;
+}
+.btn.btn--invisible:not(.btn--disabled):focus,
+.btn.btn--invisible:not(.btn--disabled):hover {
+  color: color($primary lightness(+50%));
+}
+.btn.btn--invisible:not(.btn--disabled):active {
+  color: color($primary lightness(+25%));
+}

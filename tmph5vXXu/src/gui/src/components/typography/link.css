@@ -1,0 +1,25 @@
+a {
+  color: color($blue lightness(+30%));
+  text-decoration: none;
+  outline: none;
+  transition: .08s;
+}
+a::-moz-focus-inner {
+  border: none;
+}
+a:focus,
+a:hover {
+  color: color($blue lightness(+100%));
+}
+a:focus {
+  box-shadow: 0 0 0 3px color($primary lightness(+25%)),
+    0 0 0 1.5px color($primary lightness(+25%));
+}
+a:active,
+a:focus:active,
+a:hover:active {
+  color: color($blue lightness(+30%));
+}
+.js-focus-visible a:focus:not(.focus-visible) {
+  box-shadow: none;
+}

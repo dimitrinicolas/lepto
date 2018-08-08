@@ -1,0 +1,36 @@
+.page {
+  background: black;
+}
+.page.page--bottom {
+  overflow: hidden;
+  background: $bottom;
+}
+
+.page__wrap {
+  max-width: 900px @932 100%;
+  margin-x: auto;
+  padding-y: 60px 30px;
+  padding-x: @932 30px @600 15px;
+}
+.page.page--bottom .page__wrap {
+  max-width: 1600px @1632 100%;
+  padding-x: @1632 30px @600 15px;
+}
+.page__wrap--split {
+  display: flex;
+  align-items: flex-start;
+}
+.page__col {
+  position: sticky;
+  top: 10px;
+  flex: 1;
+}
+.page__col:first-of-type {
+  margin-right: 20px;
+}
+.page__col:last-of-type {
+  margin-left: 20px;
+}
+.page--bottom .page__wrap {
+  padding-y: 40px 60px;
+}

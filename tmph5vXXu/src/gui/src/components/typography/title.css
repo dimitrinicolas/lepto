@@ -1,0 +1,35 @@
+.title {
+  font: mono 600 16px;
+  color: white;
+  line-height: 1.35;
+}
+h1.title {
+  margin-y: 20px;
+  font-size: 23px;
+}
+h2.title {
+  margin-y: 16px;
+  font-size: 19px;
+}
+h3.title {
+  font-size: 16px;
+}
+h4.title {
+  margin-y: 0;
+  font-weight: 500;
+  font-size: 14px;
+}
+h5.title {
+  margin-y: 20px;
+  font-weight: 500;
+  font-size: 18px;
+}
+
+.size-diff {
+  margin-right: 20px;
+}
+
+.loader {
+  size: 16px;
+  transform: translateY(5px);
+}
