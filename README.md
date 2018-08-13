@@ -1,7 +1,7 @@
 [![Lepto: The best image optimizations practices made simple](fixtures/readme/lepto.jpg)](#get-started-with-cli--npm-scripts)
 
 <p align="center">
-  <a href="https://travis-ci.org/dimitrinicolas/lepto"><img src="https://travis-ci.org/leptojs/lepto.svg?branch=master" alt="Build Status"></a>
+  <a href="https://travis-ci.org/leptojs/lepto"><img src="https://travis-ci.org/leptojs/lepto.svg?branch=master" alt="Build Status"></a>
 </p>
 
 The main purpose of this tool is to automate image optimization and analysis. 
@@ -370,10 +370,10 @@ You can inspire yourself with the [built-in plugins](plugins/).
 
 This project is licensed under the [MIT license](LICENSE).
 
-[lepto-cli]: https://github.com/dimitrinicolas/lepto-cli
-[lepto-resize]: https://github.com/dimitrinicolas/lepto-resize
-[lepto-webp]: https://github.com/dimitrinicolas/lepto-webp
-[lepto-vibrant-color]: https://github.com/dimitrinicolas/lepto-vibrant-color
+[lepto-cli]: https://github.com/leptojs/lepto-cli
+[lepto-resize]: https://github.com/leptojs/lepto-resize
+[lepto-webp]: https://github.com/leptojs/lepto-webp
+[lepto-vibrant-color]: https://github.com/leptojs/lepto-vibrant-color
 
 [imagemin]: https://github.com/imagemin/imagemin
 [sharp]: https://www.npmjs.com/package/sharp
