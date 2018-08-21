@@ -40,7 +40,7 @@
     }
   },
   "scripts": {
-    "publish": "clean-publish --files fixtures",
+    "publish": "clean-publish --files fixtures --files src/gui/src",
     "style:build": "postcss --config src/gui/build/postcss.config.js -o src/gui/dist/style.css src/gui/src/main.css",
     "script:build": "webpack src/gui/src/main.js --output-path='./src/gui/dist/' --output-filename='script.js' --config src/gui/build/webpack.config.js",
     "browser-sync": "browser-sync start --config src/gui/build/bs.config.js",
