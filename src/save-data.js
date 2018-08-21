@@ -11,7 +11,9 @@ const saveData = (output, file, data, eventsHandler) => {
     const str = fs.readFileSync(output, 'utf-8');
     try {
       dataContent = JSON.parse(str);
-    } catch (error) { }
+    } catch (error) {
+      eventsHandler.dispatch('warning', `Invalid json in file ${output}`);
+    }
   }
   dataContent[file] = data;
   outputingData = Object.assign({}, dataContent);

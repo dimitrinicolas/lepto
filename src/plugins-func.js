@@ -20,7 +20,7 @@ const resolverPlugin = (name, eventsHandler) => {
     eventsHandler.dispatch(
       'error',
       `Built-in plugin "${name}" not found, maybe you are looking for "lepto-${plugin}",`
-      + ' see https://github.com/leptojs/lepto#built-in-plugins Lepto will run without.'
+        + ' see https://github.com/leptojs/lepto#built-in-plugins Lepto will run without.'
     );
     return null;
   }

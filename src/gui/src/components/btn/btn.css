@@ -1,5 +1,4 @@
 .btn {
-
   display: inline-block;
 
   margin: 2px 0;
@@ -13,8 +12,7 @@
   background-color: $primary;
   border-radius: 4px;
   outline: none;
-  transition: .1s;
-
+  transition: 0.1s;
 }
 .btn::-moz-focus-inner {
   border: none;

@@ -4,7 +4,7 @@ module.exports = {
     react: 'React'
   },
   module: {
-  	rules: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -16,7 +16,7 @@ module.exports = {
           }
         }
       }
-  	]
+    ]
   },
   performance: {
     hints: 'error'

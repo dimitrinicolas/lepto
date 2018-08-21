@@ -17,15 +17,17 @@ const svgPlugin = (opts = {}) => {
       if (Object.prototype.hasOwnProperty.call(input.outputs, i)) {
         const mime = utils.mime(input.outputs[i].buffer);
         if (mime === 'application/xml' || mime === 'image/svg+xml') {
-          svgo.optimize(input.outputs[i].buffer.toString()).then(function svgoThen(j) {
-            return function svgoSuccess(res) {
-              const buffer = Buffer.from(res.data);
-              if (buffer.length < input.outputs[j].buffer.length) {
-                input.outputs[j].buffer = buffer;
-              }
-              next();
-            };
-          }(i));
+          svgo.optimize(input.outputs[i].buffer.toString()).then(
+            (function svgoThen(j) {
+              return function svgoSuccess(res) {
+                const buffer = Buffer.from(res.data);
+                if (buffer.length < input.outputs[j].buffer.length) {
+                  input.outputs[j].buffer = buffer;
+                }
+                next();
+              };
+            })(i)
+          );
         } else {
           next();
         }

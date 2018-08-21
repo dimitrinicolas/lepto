@@ -2,7 +2,7 @@ a {
   color: color($blue lightness(+30%));
   text-decoration: none;
   outline: none;
-  transition: .08s;
+  transition: 0.08s;
 }
 a::-moz-focus-inner {
   border: none;

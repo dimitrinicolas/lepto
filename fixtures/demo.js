@@ -13,6 +13,10 @@ lepto(config)
     console.error(msg);
   })
 
+  .on('success', msg => {
+    console.log('success', msg);
+  })
+
   .on('processed-file', data => {
     let maxSave = 0;
     let outputsText = [];

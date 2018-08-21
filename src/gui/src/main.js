@@ -1,4 +1,5 @@
 /* global io:true */
+/* eslint no-use-before-define: 0 */
 
 import 'focus-visible';
 import Magnifier from 'magnifier';
@@ -83,9 +84,13 @@ const pluginPropsListener = (globId, pluginId) => {
     }
     if (data) {
       event.target.classList.remove('--error');
-      currentConfig.filters[globId].use[pluginId] = Object.assign({}, {
-        name: currentConfig.filters[globId].use[pluginId].name
-      }, data);
+      currentConfig.filters[globId].use[pluginId] = Object.assign(
+        {},
+        {
+          name: currentConfig.filters[globId].use[pluginId].name
+        },
+        data
+      );
     }
   };
 };
@@ -110,7 +115,10 @@ const globPreListener = globId => {
  */
 const globRemoveEvent = globId => {
   return event => {
-    if (event.type !== 'keypress' || (event.type === 'keypress' && event.keyCode === 13)) {
+    if (
+      event.type !== 'keypress'
+      || (event.type === 'keypress' && event.keyCode === 13)
+    ) {
       currentConfig.filters.splice(globId, 1);
       updateConfigDOM();
     }
@@ -124,8 +132,15 @@ const globRemoveEvent = globId => {
  */
 const globMoveEvent = (globId, move) => {
   return event => {
-    if (event.type !== 'keypress' || (event.type === 'keypress' && event.keyCode === 13)) {
-      currentConfig.filters.splice(globId + move, 0, currentConfig.filters.splice(globId, 1)[0]);
+    if (
+      event.type !== 'keypress'
+      || (event.type === 'keypress' && event.keyCode === 13)
+    ) {
+      currentConfig.filters.splice(
+        globId + move,
+        0,
+        currentConfig.filters.splice(globId, 1)[0]
+      );
       updateConfigDOM();
     }
   };
@@ -137,7 +152,10 @@ const globMoveEvent = (globId, move) => {
  */
 const addPluginEvent = globId => {
   return event => {
-    if (event.type !== 'keypress' || (event.type === 'keypress' && event.keyCode === 13)) {
+    if (
+      event.type !== 'keypress'
+      || (event.type === 'keypress' && event.keyCode === 13)
+    ) {
       currentConfig.filters[globId].use.push({
         name: ''
       });
@@ -153,7 +171,10 @@ const addPluginEvent = globId => {
  */
 const pluginRemoveEvent = (globId, pluginId) => {
   return event => {
-    if (event.type !== 'keypress' || (event.type === 'keypress' && event.keyCode === 13)) {
+    if (
+      event.type !== 'keypress'
+      || (event.type === 'keypress' && event.keyCode === 13)
+    ) {
       currentConfig.filters[globId].use.splice(pluginId, 1);
       updateConfigDOM();
     }
@@ -165,7 +186,10 @@ const pluginRemoveEvent = (globId, pluginId) => {
  * @param {event} event
  */
 const handleOptimBtnEvent = event => {
-  if (event.type !== 'keypress' || (event.type === 'keypress' && event.keyCode === 13)) {
+  if (
+    event.type !== 'keypress'
+    || (event.type === 'keypress' && event.keyCode === 13)
+  ) {
     addOptimFilter();
     event.target.classList.add('btn--disabled');
     setTimeout(() => {
@@ -179,7 +203,10 @@ const handleOptimBtnEvent = event => {
  * @param {event} event
  */
 const addFilterEvent = event => {
-  if (event.type !== 'keypress' || (event.type === 'keypress' && event.keyCode === 13)) {
+  if (
+    event.type !== 'keypress'
+    || (event.type === 'keypress' && event.keyCode === 13)
+  ) {
     currentConfig.filters.push({
       glob: ''
     });
@@ -329,7 +356,10 @@ const generatePluginDiv = (data, globId, pluginId) => {
   if (Object.keys(plugin).length) {
     let content = JSON.stringify(plugin, null, 2);
     content = content.substring(2, content.length - 1);
-    content = content.split(/\n/).map(row => row.replace(/^ {2}/, '')).join('\n');
+    content = content
+      .split(/\n/)
+      .map(row => row.replace(/^ {2}/, ''))
+      .join('\n');
     pre.innerHTML = content;
   }
   div.appendChild(pre);
@@ -389,8 +419,13 @@ const initMagnifier = () => {
  * Add the optimization filter
  */
 const addOptimFilter = () => {
-  const file = deepTreeDive(currentTree, selectedFile.split(',').map(i => parseInt(i, 10)));
-  const ext = file.path.substring(file.path.lastIndexOf('.') + 1, file.path.length).toLowerCase();
+  const file = deepTreeDive(
+    currentTree,
+    selectedFile.split(',').map(i => parseInt(i, 10))
+  );
+  const ext = file.path
+    .substring(file.path.lastIndexOf('.') + 1, file.path.length)
+    .toLowerCase();
   if (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) !== -1) {
     if (ext === 'jpg' || ext === 'jpeg') {
       currentConfig.filters.push({
@@ -435,8 +470,13 @@ const addOptimFilter = () => {
 const handleFileFocus = id => {
   selectedFile = id;
 
-  const file = deepTreeDive(currentTree, selectedFile.split(',').map(i => parseInt(i, 10)));
-  const ext = file.path.substring(file.path.lastIndexOf('.') + 1, file.path.length).toLowerCase();
+  const file = deepTreeDive(
+    currentTree,
+    selectedFile.split(',').map(i => parseInt(i, 10))
+  );
+  const ext = file.path
+    .substring(file.path.lastIndexOf('.') + 1, file.path.length)
+    .toLowerCase();
   selectedFileEl.innerHTML = '';
 
   if (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) !== -1) {
@@ -499,12 +539,15 @@ const handleFileFocus = id => {
     selectedFileEl.appendChild(imgWrap);
 
     setQuality(slider.value, img, `ressources/${file.path}`);
-    slider.addEventListener('change', ((label, imgEl, src) => {
-      return event => {
-        label.innerHTML = event.target.value;
-        setQuality(event.target.value, imgEl, `ressources/${src}`);
-      };
-    })(valueEl, img, file.path));
+    slider.addEventListener(
+      'change',
+      ((label, imgEl, src) => {
+        return event => {
+          label.innerHTML = event.target.value;
+          setQuality(event.target.value, imgEl, `ressources/${src}`);
+        };
+      })(valueEl, img, file.path)
+    );
 
     smoothScroll(selectedFileEl.offsetTop, 200);
 
@@ -525,7 +568,10 @@ const handleFileFocus = id => {
  */
 const handleFileEvent = id => {
   return event => {
-    if (event.type !== 'keypress' || (event.type === 'keypress' && event.keyCode === 13)) {
+    if (
+      event.type !== 'keypress'
+      || (event.type === 'keypress' && event.keyCode === 13)
+    ) {
       handleFileFocus(id);
     }
   };
@@ -594,7 +640,10 @@ const saveConfig = () => {
  * @param {event} event
  */
 const handleSaveBtnEvent = event => {
-  if (event.type !== 'keypress' || (event.type === 'keypress' && event.keyCode === 13)) {
+  if (
+    event.type !== 'keypress'
+    || (event.type === 'keypress' && event.keyCode === 13)
+  ) {
     saveConfig();
   }
 };
@@ -622,7 +671,12 @@ const onload = () => {
 
   const socketScript = document.createElement('script');
   socketScript.onload = () => {
-    socket = io.connect(`${location.protocol}//${location.hostname}:${(parseInt(location.port, 10) + 1)}`);
+    socket = io.connect(
+      `${location.protocol}//${location.hostname}:${parseInt(
+        location.port,
+        10
+      ) + 1}`
+    );
     socket.on('config-update', config => {
       currentConfig = config;
       selectedFile = null;
@@ -642,7 +696,7 @@ const onload = () => {
       if (disabledTimeout) {
         clearTimeout(disabledTimeout);
       }
-      const timeout = Math.max(0, (100 - Date.now() + disabledTime));
+      const timeout = Math.max(0, 100 - Date.now() + disabledTime);
       if (!timeout) {
         saveConfigBtn.classList.remove('btn--disabled');
       } else {
@@ -652,11 +706,17 @@ const onload = () => {
       }
     });
   };
-  socketScript.src = `${location.protocol}//${location.hostname}:${(parseInt(location.port, 10) + 1)}/socket.io/socket.io.js`;
+  socketScript.src = `${location.protocol}//${location.hostname}:${parseInt(
+    location.port,
+    10
+  ) + 1}/socket.io/socket.io.js`;
   document.body.appendChild(socketScript);
 
   window.addEventListener('keydown', event => {
-    if ((event.which === 115 && event.ctrlKey) || (event.which === 83 && event.metaKey)) {
+    if (
+      (event.which === 115 && event.ctrlKey)
+      || (event.which === 83 && event.metaKey)
+    ) {
       event.preventDefault();
       saveConfig();
     }

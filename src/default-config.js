@@ -18,4 +18,7 @@ const cli = Object.assign({}, main, {
   watch: true
 });
 
-module.exports = { main, cli };
+module.exports = {
+  main,
+  cli
+};

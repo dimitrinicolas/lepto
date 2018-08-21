@@ -2,8 +2,17 @@ const execBuffer = require('exec-buffer');
 const gifsicle = require('gifsicle');
 
 const gifPlugin = (opts = {}) => {
-  const args = ['--no-app-extensions', '--interlace', '--optimize=3', '--output', execBuffer.output, execBuffer.input];
-  const colors = typeof opts.colors !== 'undefined' ? Math.max(2, Math.min(parseInt(opts.colors, 10), 256)) : null;
+  const args = [
+    '--no-app-extensions',
+    '--interlace',
+    '--optimize=3',
+    '--output',
+    execBuffer.output,
+    execBuffer.input
+  ];
+  const colors = typeof opts.colors !== 'undefined'
+    ? Math.max(2, Math.min(parseInt(opts.colors, 10), 256))
+    : null;
   if (colors) {
     args.push(`--colors=${opts.colors}`);
   }
@@ -24,14 +33,18 @@ const gifPlugin = (opts = {}) => {
           input: input.outputs[i].buffer,
           bin: gifsicle,
           args
-        }).catch(next).then(function bufferExecError(j) {
-          return function bufferExecErrorCallback(buffer) {
-            if (buffer.length < input.outputs[j].buffer.length) {
-              input.outputs[j].buffer = buffer;
-            }
-            next();
-          };
-        }(i));
+        })
+          .catch(next)
+          .then(
+            (function bufferExecError(j) {
+              return function bufferExecErrorCallback(buffer) {
+                if (buffer.length < input.outputs[j].buffer.length) {
+                  input.outputs[j].buffer = buffer;
+                }
+                next();
+              };
+            })(i)
+          );
       } else {
         next();
       }

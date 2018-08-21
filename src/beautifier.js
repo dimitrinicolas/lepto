@@ -1,3 +1,7 @@
+/**
+ * Beautify a file size
+ * @param {number} length
+ */
 const bytes = length => {
   if (length < 1e3) {
     return `${length / 1e3}KB`;
@@ -8,6 +12,10 @@ const bytes = length => {
   return `${Math.round(length / (1000 * 100)) / 10}MB`;
 };
 
+/**
+ * Beautify a milisecond amount
+ * @param {number} amount
+ */
 const time = amount => {
   if (amount < 1000) {
     return `${amount}ms`;

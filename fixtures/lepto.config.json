@@ -1,7 +1,6 @@
 {
-  "input": "fixtures/input",
-  "output": "fixtures/input/output",
-  "watch": true,
+  "input": "input",
+  "output": "input/output",
   "filters": [
     {
       "glob": "**/*.jpg",
