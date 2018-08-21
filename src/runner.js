@@ -28,7 +28,7 @@ class Runner {
     const configSet = this.setConfig(config);
     if (configSet.success) {
       if (this.config.gui) {
-        if (this.cli && path.extname(this.configFile) === '.json') {
+        if (this.cli && path.extname(this.configFile) !== '.js') {
           gui.init(
             this.config.guiPort,
             {
