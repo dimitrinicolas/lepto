@@ -1,6 +1,11 @@
 # Change Log
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.0 - 2018-08-21
+## Changed
+- GUI accept "only non .js" config file instead of "only .json".
+- Improved log messages.
+
 ## 1.1.1 - 2018-08-08
 ## Changed
 - Removed output files from GUI tree.

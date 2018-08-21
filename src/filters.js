@@ -1,8 +1,13 @@
 const minimatch = require('minimatch');
 const path = require('path');
 
-const plugins = require('./plugins-func.js');
+const { merge, satinize } = require('./plugins-func.js');
 
+/**
+ * Get plugins list for image path
+ * @param {array} filters
+ * @param {string} rootPath
+ */
 const getPluginsList = (filters, rootPath) => {
   let pluginsList = [];
   for (const filterItem of filters) {
@@ -10,7 +15,7 @@ const getPluginsList = (filters, rootPath) => {
       for (const glob of filterItem.glob) {
         if (minimatch(rootPath, glob)) {
           for (const plugin of filterItem.plugins) {
-            pluginsList = plugins.merge(pluginsList, [plugin]);
+            pluginsList = merge(pluginsList, [plugin]);
           }
           break;
         }
@@ -20,34 +25,46 @@ const getPluginsList = (filters, rootPath) => {
   return pluginsList;
 };
 
+/**
+ * Generate a filter
+ * @param {object} opts
+ * @param {string} parentDir
+ * @param {EventsHandler} eventsHandler
+ */
 const generateFilter = (opts, parentDir, eventsHandler) => {
-  const res = {
+  const filter = {
     glob: [],
-    plugins: plugins.satinize(opts.use, eventsHandler)
+    plugins: satinize(opts.use, eventsHandler)
   };
 
-  const addParent = glob => {
+  const addParentPath = glob => {
     return (typeof parentDir !== 'undefined' ? `${parentDir}/` : '') + glob;
   };
 
-  const dirStr = path.resolve(addParent(opts.dir || ''));
+  const dirStr = path.resolve(addParentPath(opts.dir || ''));
   if (Array.isArray(opts.glob)) {
-    res.glob = opts.glob.map(str => addParent(str));
+    filter.glob = opts.glob.map(str => addParentPath(str));
   } else if (typeof opts.glob === 'string') {
-    res.glob = [addParent(opts.glob)];
+    filter.glob = [addParentPath(opts.glob)];
   } else {
-    res.glob = [`${dirStr}/**/*.*`];
+    filter.glob = [`${dirStr}/**/*.*`];
   }
 
-  return res;
+  return filter;
 };
 
+/**
+ * Generate a list of filters
+ * @param {string} dir
+ * @param {array} [filters=[]]
+ * @param {EventsHandler} eventsHandler
+ */
 const generate = (dir, filters = [], eventsHandler) => {
-  const resList = [];
-  for (const item of filters) {
-    resList.push(generateFilter(Object.assign({}, item), dir, eventsHandler));
+  const list = [];
+  for (const opts of filters) {
+    list.push(generateFilter(Object.assign({}, opts), dir, eventsHandler));
   }
-  return resList;
+  return list;
 };
 
 module.exports = {

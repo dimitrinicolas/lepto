@@ -6,8 +6,8 @@
       "glob": "**/*.jpg",
       "use": [
         {
-          "name": "lepto.jpeg",
-          "quality": 80
+          "name": "lepto.jpg",
+          "quality": 70
         }
       ]
     },

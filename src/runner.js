@@ -9,23 +9,31 @@ const path = require('path');
 
 const defaultConfig = require('./default-config.js');
 const EventsHandler = require('./events-handler.js');
-const filters = require('./filters.js');
+const { generate, getPluginsList } = require('./filters.js');
 const gui = require('./gui.js');
 const pipe = require('./pipe.js');
 const saveData = require('./save-data.js');
 
+const EXTENSIONS_REGEXP = /\.(jpg|jpeg|png|gif|svg|tiff|bmp|webp)/;
+
 class Runner {
   constructor(config = {}, params = {}) {
-    this._extensions = /\.(jpg|jpeg|png|gif|svg|tiff|bmp|webp)/;
+    this._extensions = EXTENSIONS_REGEXP;
     this.unlinkFollowers = {};
     this.cli = params.cli ? params.cli : false;
-    this.cliConfig = typeof params.cliConfig !== 'undefined' ? params.cliConfig : {};
-    this.configFile = typeof params.configFile !== 'undefined' ? params.configFile : '';
+    this.cliConfig = typeof params.cliConfig !== 'undefined'
+      ? params.cliConfig
+      : {};
+    this.configFile = typeof params.configFile !== 'undefined'
+      ? params.configFile
+      : '';
     this.filtersList = [];
     this.globAllInput = '';
     this.globAllOutput = '';
     this.eventsHandler = new EventsHandler();
+
     const configSet = this.setConfig(config);
+
     if (configSet.success) {
       if (this.config.gui) {
         if (this.cli && path.extname(this.configFile) !== '.js') {
@@ -36,47 +44,15 @@ class Runner {
             },
             this.eventsHandler
           );
+
           this.updateGUIConfig();
-          gui.on('config-update', configOutput => {
-            const normalizedConfig = this.normalizeConfig(configOutput);
-            const diff = deepDiff.diff(normalizedConfig, this.config);
-            if (Object.keys(diff).length) {
-              const newConfigSet = this.setConfig(configOutput);
-              if (newConfigSet.success) {
-                this.processAll();
-                const jsonStr = JSON.stringify(configOutput, null, 2);
-                fse.outputFile(this.configFile, jsonStr, err => {
-                  this.configFileWritten = true;
-                  if (err) {
-                    gui.updateFinish();
-                    this.eventsHandler.dispatch(
-                      'error',
-                      'Unable to save config file from GUI update'
-                    );
-                  } else {
-                    gui.updateFinish(configOutput);
-                    this.eventsHandler.dispatch('info', {
-                      msg: 'Config updated from GUI'
-                    });
-                  }
-                });
-              } else if (!newConfigSet.success) {
-                gui.updateFinish();
-                this.eventsHandler.dispatch('warn', {
-                  msg: `Unable to update config from GUI: ${newConfigSet.msg}`
-                });
-              }
-            } else {
-              gui.updateFinish();
-              this.eventsHandler.dispatch('info', {
-                msg: 'Config updated from GUI, but no difference found'
-              });
-            }
-          });
+
+          gui.on('config-update', this.onGUIConfigUpdate.bind(this));
         } else {
           this.eventsHandler.dispatch(
             'error',
-            'You can only use lepto GUI by cli with a json config file'
+            'You can only use lepto GUI by CLI with a JSON formated config file'
+              + ', see https://github.com/leptojs/lepto#gui'
           );
         }
       }
@@ -93,26 +69,26 @@ class Runner {
     if (!config.input) {
       return {
         success: false,
-        msg: 'Missing input'
+        msg: 'Missing input, see https://github.com/leptojs/lepto#config'
       };
     }
     if (!config.output) {
       return {
         success: false,
-        msg: 'Missing output'
+        msg: 'Missing output, see https://github.com/leptojs/lepto#config'
       };
     }
     if (path.resolve(config.input) === path.resolve(config.output)) {
       return {
         success: false,
-        msg: "Input and output can't be the same directory"
+        msg: 'Input and output can\'t be the same directory'
       };
     }
 
     this.configRaw = data;
     this.config = config;
 
-    this.filtersList = filters.generate(
+    this.filtersList = generate(
       path.resolve(this.config.input),
       this.config.filters,
       this.eventsHandler
@@ -170,6 +146,47 @@ class Runner {
     }
   }
 
+  onGUIConfigUpdate(configOutput) {
+    const normalizedConfig = this.normalizeConfig(configOutput);
+    const configDiff = deepDiff.diff(normalizedConfig, this.config);
+
+    if (Object.keys(configDiff).length) {
+      const newConfigSet = this.setConfig(configOutput);
+
+      if (newConfigSet.success) {
+        this.processAll();
+        const jsonStr = JSON.stringify(configOutput, null, 2);
+
+        fse.outputFile(this.configFile, jsonStr, err => {
+          this.configFileWritten = true;
+
+          if (err) {
+            gui.updateFinish();
+            this.eventsHandler.dispatch(
+              'error',
+              'Unable to save config file from GUI update'
+            );
+          } else {
+            gui.updateFinish(configOutput);
+            this.eventsHandler.dispatch('info', {
+              msg: 'Config updated from GUI'
+            });
+          }
+        });
+      } else if (!newConfigSet.success) {
+        gui.updateFinish();
+        this.eventsHandler.dispatch('warn', {
+          msg: `Unable to update config from GUI: ${newConfigSet.msg}`
+        });
+      }
+    } else {
+      gui.updateFinish();
+      this.eventsHandler.dispatch('info', {
+        msg: 'Config updated from GUI, but no difference found'
+      });
+    }
+  }
+
   normalizeConfig(config) {
     if (this.cli) {
       config = Object.assign({}, defaultConfig.main, defaultConfig.cli, config);
@@ -184,187 +201,207 @@ class Runner {
 
   handleWatchEvent(event, filePath) {
     if (['add', 'change'].indexOf(event) !== -1) {
-      this.processList([filePath], event);
+      /* Process an unique file  */
+      this.processFile(filePath, event);
     }
     if (event === 'unlink' && this.config.followUnlink) {
+      /* Process a removed file  */
       this.unlink(filePath);
     }
     this.updateGUITree();
   }
 
+  processFile(item, event) {
+    const processStart = Date.now();
+    const pluginsList = getPluginsList(this.filtersList, item);
+    const relativePath = path.relative(
+      path.resolve(process.cwd(), this.config.input),
+      item
+    );
+    const adjs = {
+      add: 'new',
+      change: 'changed'
+    };
+    const adj = typeof adjs[event] !== 'undefined' ? `${adjs[event]} ` : '';
+
+    if (pluginsList.length === 0) {
+      fs.readFile(item, (err, buffer) => {
+        if (err) {
+          this.eventsHandler.dispatch('error', `Unable to read ${item}`);
+          return;
+        }
+        const outputPath = path.resolve(
+          `${this.config.output}/${path.dirname(
+            relativePath
+          )}/${path.basename(relativePath)}`
+        );
+        fse.outputFile(outputPath, buffer, outputErr => {
+          if (outputErr) {
+            this.eventsHandler.dispatch(
+              'error',
+              `Unable to save ${outputPath} file`
+            );
+          }
+        });
+      });
+      return;
+    }
+
+    fs.readFile(item, (err, buffer) => {
+      if (err) {
+        this.eventsHandler.dispatch('error', `Unable to read ${item}`);
+        return;
+      }
+
+      const imgType = fileType(buffer);
+      if (
+        imgType === null
+        || (
+          imgType.mime.split('/')[0] !== 'image'
+          && imgType.mime !== 'application/xml'
+        )
+      ) {
+        return;
+      }
+
+      const inputSize = buffer.length;
+      const pipedData = {
+        input: relativePath,
+        outputs: [
+          {
+            dir: path.dirname(relativePath),
+            filename: path.basename(relativePath),
+            buffer
+          }
+        ],
+        data: {}
+      };
+
+      const pluginsFunc = pluginsList.map(plugin => plugin.__func);
+      pipe(
+        pipedData,
+        pluginsFunc
+      ).then(
+        (res = {}) => {
+          if (res === null || typeof res !== 'object') {
+            /* Unhandled error occured during the process */
+            this.eventsHandler.dispatch(
+              'error',
+              'Some piped data have been deteriorated by a plugin'
+            );
+            return;
+          }
+
+          if (res.__error) {
+            /* Handled error occured during the process */
+            let additionalInfo = '';
+            if (res.remainingPlugins) {
+              const failingPlugin = pluginsList[
+                pluginsList.length - res.remainingPlugins - 1
+              ] || {};
+              if (failingPlugin.name) {
+                additionalInfo = ', some data have been deteriorated by the'
+                  + ` plugin ${
+                    failingPlugin.name
+                  }`;
+              } else if (failingPlugin.__func) {
+                if (failingPlugin.__func.name) {
+                  additionalInfo = ', some data have been deteriorated by the'
+                    + ` plugin function named "${
+                      failingPlugin.__func.name
+                    }"`;
+                } else {
+                  additionalInfo = ', some data have been deteriorated by the'
+                    + ` unamed plugin function: ${
+                      failingPlugin.__func
+                    }`;
+                }
+              }
+            }
+            this.eventsHandler.dispatch(
+              'error',
+              `Unable to process ${relativePath}${additionalInfo}`
+            );
+            return;
+          }
+
+          const timeSpent = Date.now() - processStart;
+          if (this.config.dataOutput && Object.keys(res.data).length) {
+            let inputName = res.input;
+            if (this.config.dataRootPath) {
+              inputName = path.relative(
+                path.resolve(process.cwd(), this.config.dataRootPath),
+                path.resolve(
+                  process.cwd(),
+                  this.config.input,
+                  inputName
+                )
+              );
+            }
+            saveData(
+              path.resolve(process.cwd(), this.config.dataOutput),
+              inputName,
+              res.data,
+              this.eventsHandler
+            );
+          } else if (
+            !this.config.dataOutput
+            && Object.keys(res.data).length
+          ) {
+            this.eventsHandler.dispatch('info', {
+              msg: 'Some plugins are outputing data but you didn\'t set up a'
+                + ' dataOutput path,'
+                + ' see https://github.com/leptojs/lepto#config',
+              callOnceId: 'unsaved-output-data'
+            });
+          }
+
+          const outputFiles = [];
+          const outputSizes = [];
+          for (const output of res.outputs) {
+            outputFiles.push(
+              `${output.dir === '.' ? '' : `${output.dir}/`}${
+                output.filename
+              }`
+            );
+            outputSizes.push(output.buffer.length);
+          }
+          this.unlinkFollowers[
+            path.resolve(process.cwd(), this.config.input, res.input)
+          ] = outputFiles.map(output =>
+            path.resolve(process.cwd(), this.config.output, output)
+          );
+          this.eventsHandler.dispatch('processed-file', {
+            adj,
+            input: relativePath,
+            inputSize,
+            output: outputFiles,
+            outputSizes,
+            timeSpent,
+            pluginsNumber: pluginsList.length
+          });
+
+          for (const output of res.outputs) {
+            const outputPath = path.resolve(
+              `${this.config.output}/${output.dir}/${output.filename}`
+            );
+            fse.outputFile(outputPath, output.buffer, outputErr => {
+              if (outputErr) {
+                this.eventsHandler.dispatch(
+                  'error',
+                  `Unable to save ${outputPath}`
+                );
+              }
+            });
+          }
+        }
+      );
+    });
+  }
+
   processList(list, event) {
     for (const item of list) {
-      const processStart = Date.now();
-      const pluginsList = filters.getPluginsList(this.filtersList, item);
-      const relativePath = path.relative(
-        path.resolve(process.cwd(), this.config.input),
-        item
-      );
-      const adjs = {
-        add: 'new',
-        change: 'changed'
-      };
-      const adj = typeof adjs[event] !== 'undefined' ? `${adjs[event]} ` : '';
-      if (pluginsList.length === 0) {
-        fs.readFile(item, (err, buffer) => {
-          if (err) {
-            this.eventsHandler.dispatch('error', `Unable to read ${item}`);
-            return;
-          }
-          const outputPath = path.resolve(
-            `${this.config.output}/${path.dirname(
-              relativePath
-            )}/${path.basename(relativePath)}`
-          );
-          fse.outputFile(outputPath, buffer, outputErr => {
-            if (outputErr) {
-              this.eventsHandler.dispatch(
-                'error',
-                `Unable to save ${outputPath} file`
-              );
-            }
-          });
-        });
-      } else {
-        fs.readFile(item, (err, buffer) => {
-          if (err) {
-            this.eventsHandler.dispatch('error', `Unable to read ${item}`);
-            return;
-          }
-          const imgType = fileType(buffer);
-          if (imgType !== null) {
-            if (
-              imgType.mime.split('/')[0] === 'image'
-              || imgType.mime === 'application/xml'
-            ) {
-              const inputSize = buffer.length;
-              const pipedData = {
-                input: relativePath,
-                outputs: [
-                  {
-                    dir: path.dirname(relativePath),
-                    filename: path.basename(relativePath),
-                    buffer
-                  }
-                ],
-                data: {}
-              };
-
-              const pluginsFuncs = [];
-              for (const pluginListItem of pluginsList) {
-                pluginsFuncs.push(pluginListItem.__func);
-              }
-              pipe(
-                pipedData,
-                pluginsFuncs
-              ).then(
-                function pipeCallback(res = {}) {
-                  if (res === null || typeof res !== 'object') {
-                    this.eventsHandler.dispatch(
-                      'error',
-                      'Some piped data have been deteriorated by a plugin'
-                    );
-                    return;
-                  }
-                  if (res.__error) {
-                    let additionalInfo = '';
-                    if (res.remainingPlugins) {
-                      const failingPlugin = pluginsList[
-                        pluginsList.length - res.remainingPlugins - 1
-                      ] || {};
-                      if (failingPlugin.name) {
-                        additionalInfo = `, some data have been deteriorated by the plugin ${
-                          failingPlugin.name
-                        }`;
-                      } else if (failingPlugin.__func) {
-                        if (failingPlugin.__func.name) {
-                          additionalInfo = `, some data have been deteriorated by the plugin function named "${
-                            failingPlugin.__func.name
-                          }"`;
-                        } else {
-                          additionalInfo = `, some data have been deteriorated by the unamed plugin function: ${
-                            failingPlugin.__func
-                          }`;
-                        }
-                      }
-                    }
-                    this.eventsHandler.dispatch(
-                      'error',
-                      `Unable to process ${relativePath}${additionalInfo}`
-                    );
-                    return;
-                  }
-                  const timeSpent = Date.now() - processStart;
-                  if (this.config.dataOutput && Object.keys(res.data).length) {
-                    let inputName = res.input;
-                    if (this.config.dataRootPath) {
-                      inputName = path.relative(
-                        path.resolve(process.cwd(), this.config.dataRootPath),
-                        path.resolve(
-                          process.cwd(),
-                          this.config.input,
-                          inputName
-                        )
-                      );
-                    }
-                    saveData(
-                      path.resolve(process.cwd(), this.config.dataOutput),
-                      inputName,
-                      res.data,
-                      this.eventsHandler
-                    );
-                  } else if (
-                    !this.config.dataOutput
-                    && Object.keys(res.data).length
-                  ) {
-                    this.eventsHandler.dispatch('info', {
-                      msg:
-                        "Some plugins are outputing data but you didn't set up a dataOutput path"
-                    });
-                  }
-                  const outputFiles = [];
-                  const outputSizes = [];
-                  for (const output of res.outputs) {
-                    outputFiles.push(
-                      `${output.dir === '.' ? '' : `${output.dir}/`}${
-                        output.filename
-                      }`
-                    );
-                    outputSizes.push(output.buffer.length);
-                  }
-                  this.unlinkFollowers[
-                    path.resolve(process.cwd(), this.config.input, res.input)
-                  ] = outputFiles.map(output =>
-                    path.resolve(process.cwd(), this.config.output, output)
-                  );
-                  this.eventsHandler.dispatch('processed-file', {
-                    adj,
-                    input: relativePath,
-                    inputSize,
-                    output: outputFiles,
-                    outputSizes,
-                    timeSpent,
-                    pluginsNumber: pluginsList.length
-                  });
-                  for (const output of res.outputs) {
-                    const outputPath = path.resolve(
-                      `${this.config.output}/${output.dir}/${output.filename}`
-                    );
-                    fse.outputFile(outputPath, output.buffer, outputErr => {
-                      if (outputErr) {
-                        this.eventsHandler.dispatch(
-                          'error',
-                          `Unable to save ${outputPath}`
-                        );
-                      }
-                    });
-                  }
-                }.bind(this)
-              );
-            }
-          }
-        });
-      }
+      this.processFile(item, event);
     }
   }
 

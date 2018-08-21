@@ -30,8 +30,8 @@ const jpegPlugin = (opts = {}) => {
           })
           .toBuffer()
           .then(
-            (function sharpThen(j) {
-              return function sharpSuccess(buffer) {
+            (j => {
+              return buffer => {
                 if (buffer.length < input.outputs[j].buffer.length) {
                   input.outputs[j].buffer = buffer;
                 }

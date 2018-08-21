@@ -1,6 +1,6 @@
 {
   "name": "lepto",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Advanced image Editing, Optimization and Analysis CLI and GUI tool",
   "main": "src/lepto.js",
   "author": "Dimitri NICOLAS <dimitri@fivecorp.fr>",
@@ -18,27 +18,24 @@
     "images",
     "optimization",
     "javascript",
+    "gui",
     "jpg",
-    "webpg"
+    "webp",
+    "png",
+    "gif",
+    "svg"
   ],
   "watch": {
     "lint": {
-      "patterns": [
-        "src",
-        "test"
-      ],
+      "patterns": ["src", "test"],
       "extensions": "js"
     },
     "style:build": {
-      "patterns": [
-        "src/gui/src"
-      ],
+      "patterns": ["src/gui/src"],
       "extensions": "css"
     },
     "script:build": {
-      "patterns": [
-        "src/gui/src"
-      ],
+      "patterns": ["src/gui/src"],
       "extensions": "js"
     }
   },

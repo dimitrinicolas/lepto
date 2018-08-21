@@ -16,10 +16,16 @@ let currentTree = [];
 
 const eventsHandler = new EventsHandler();
 
+/**
+ * Launch the GUI
+ * @param {number} port
+ * @param {object} [opts={}]
+ * @param {EventsHandler} runnerEvents
+ */
 const init = (port, opts = {}, runnerEvents) => {
   io = socketIO(parseInt(port, 10) + 1);
 
-  io.on('connection', function onConnection(socket) {
+  io.on('connection', socket => {
     io.emit('tree-update', currentTree);
     io.emit('config-update', currentConfig);
 
@@ -29,7 +35,7 @@ const init = (port, opts = {}, runnerEvents) => {
   });
 
   http
-    .createServer(function httpRequest(request, response) {
+    .createServer((request, response) => {
       if (request.url === '/') {
         const template = fs.readFileSync(
           path.resolve(__dirname, './gui/index.html'),
@@ -145,15 +151,21 @@ const init = (port, opts = {}, runnerEvents) => {
       }
     })
     .listen(port);
+
   runnerEvents.dispatch('info', {
     msg: `GUI at the address http://localhost:${port}`,
     color: 'lightblue'
   });
+
   if (opts.openGui) {
     opn(`http://localhost:${port}`);
   }
 };
 
+/**
+ * Emit a config update to the GUI
+ * @param {object} newConfig
+ */
 const configUpdate = newConfig => {
   currentConfig = newConfig;
   if (io) {
@@ -161,6 +173,10 @@ const configUpdate = newConfig => {
   }
 };
 
+/**
+ * Emit a tree update to the GUI
+ * @param {object} newTree
+ */
 const treeUpdate = newTree => {
   currentTree = newTree;
   if (io) {
@@ -168,6 +184,10 @@ const treeUpdate = newTree => {
   }
 };
 
+/**
+ * Emit a config update finished to the GUI
+ * @param {object} newConfig
+ */
 const updateFinish = newConfig => {
   if (newConfig) {
     currentConfig = newConfig;

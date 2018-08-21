@@ -41,12 +41,22 @@ test('Set normal config', t => {
 });
 
 /* beautifier.js */
-test('0.123KB', t => { t.is(beautifier.bytes(123), '0.123KB'); });
-test('123.5KB', t => { t.is(beautifier.bytes(123456), '123.5KB'); });
-test('123.5MB', t => { t.is(beautifier.bytes(123456789), '123.5MB'); });
+test('0.123KB', t => {
+  t.is(beautifier.bytes(123), '0.123KB');
+});
+test('123.5KB', t => {
+  t.is(beautifier.bytes(123456), '123.5KB');
+});
+test('123.5MB', t => {
+  t.is(beautifier.bytes(123456789), '123.5MB');
+});
 
-test('123ms', t => { t.is(beautifier.time(123), '123ms'); });
-test('123.5s', t => { t.is(beautifier.time(123456), '123.5s'); });
+test('123ms', t => {
+  t.is(beautifier.time(123), '123ms');
+});
+test('123.5s', t => {
+  t.is(beautifier.time(123456), '123.5s');
+});
 
 /* events-handler.js */
 
@@ -88,55 +98,64 @@ test('Plugins utils ext', t => {
 /* plugins.js */
 
 test('Plugins merge', t => {
-  const result = plugins.merge([
-    {
-      name: 'demo',
-      data: 1,
-      disabled: false
-    }
-  ], [
-    {
-      name: 'demo',
-      data: 2,
-      disabled: false
-    }
-  ]);
+  const result = plugins.merge(
+    [
+      {
+        name: 'demo',
+        data: 1,
+        disabled: false
+      }
+    ],
+    [
+      {
+        name: 'demo',
+        data: 2,
+        disabled: false
+      }
+    ]
+  );
   t.is(result.length, 1);
   t.is(result[0].data, 2);
 });
 
 test('Plugins merge disable', t => {
-  const result = plugins.merge([
-    {
-      name: 'demo',
-      data: 1,
-      disabled: false
-    }
-  ], [
-    {
-      name: 'demo',
-      disabled: true
-    }
-  ]);
+  const result = plugins.merge(
+    [
+      {
+        name: 'demo',
+        data: 1,
+        disabled: false
+      }
+    ],
+    [
+      {
+        name: 'demo',
+        disabled: true
+      }
+    ]
+  );
   t.is(result.length, 1);
   t.is(result[0].disabled, true);
   t.is(typeof result[0].data, 'undefined');
 });
 
 test('Plugins merge hashtags', t => {
-  const result = plugins.merge([
-    {
-      name: 'demo',
-      data: 1,
-      disabled: false
-    }
-  ], [
-    {
-      name: 'demo#2',
-      data: 2,
-      disabled: false
-    }
-  ]);
+  const result = plugins.merge(
+    [
+      {
+        name: 'demo',
+        data: 1,
+        disabled: false
+      }
+    ],
+    [
+      {
+        name: 'demo#2',
+        data: 2,
+        disabled: false
+      }
+    ]
+  );
   t.is(result.length, 2);
   t.is(result[0].data, 1);
   t.is(result[1].data, 2);

@@ -1,4 +1,4 @@
-module.exports = class EventsHandler {
+class EventsHandler {
   constructor() {
     this.handlers = [];
     this.history = [];
@@ -32,4 +32,6 @@ module.exports = class EventsHandler {
       }
     }
   }
-};
+}
+
+module.exports = EventsHandler;
