@@ -58,7 +58,7 @@
     "fast-glob": "^2.2.2",
     "file-type": "^9.0.0",
     "fs-extra": "^7.0.0",
-    "gifsicle": "^3.0.4",
+    "gifsicle": "^4.0.0",
     "image-size": "^0.6.3",
     "minimatch": "^3.0.4",
     "opn": "^5.3.0",
