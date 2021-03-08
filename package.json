@@ -51,11 +51,11 @@
     "test": "ava"
   },
   "dependencies": {
-    "chokidar": "^2.0.4",
+    "chokidar": "^3.0.0",
     "deep-object-diff": "^1.1.0",
     "directory-tree": "^2.1.0",
     "exec-buffer": "^3.2.0",
-    "fast-glob": "^2.2.2",
+    "fast-glob": "^3.0.0",
     "file-type": "^9.0.0",
     "fs-extra": "^7.0.0",
     "gifsicle": "^3.0.4",
